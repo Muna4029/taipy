@@ -315,7 +315,9 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             if isinstance(sheet_name, str):
                 write_excel_fct(path, *args, **kwargs, sheet_name=sheet_name)
             else:
-                normalized_sheet_names = list(sheet_name) if isinstance(sheet_name, (list, tuple, set)) else [sheet_name]
+                normalized_sheet_names = (
+                    list(sheet_name) if isinstance(sheet_name, (list, tuple, set)) else [sheet_name]
+                )
                 if len(normalized_sheet_names) > 1:
                     raise SheetNameLengthMismatch
                 write_excel_fct(path, *args, **kwargs, sheet_name=normalized_sheet_names[0])
