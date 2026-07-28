@@ -200,9 +200,9 @@ def test_blocked_task():
     m = multiprocessing.Manager()
     lock_1 = m.Lock()
     lock_2 = m.Lock()
-    foo_cfg = Config.configure_data_node("foo", default_data=1)
-    bar_cfg = Config.configure_data_node("bar")
-    baz_cfg = Config.configure_data_node("baz")
+    foo_cfg = Config.configure_data_node("foo_blocked_task", default_data=1)
+    bar_cfg = Config.configure_data_node("bar_blocked_task")
+    baz_cfg = Config.configure_data_node("baz_blocked_task")
 
     dispatcher = cast(_StandaloneJobDispatcher, _OrchestratorFactory._build_dispatcher(force_restart=True))
 
@@ -210,11 +210,11 @@ def test_blocked_task():
     foo = dns[foo_cfg]
     bar = dns[bar_cfg]
     baz = dns[baz_cfg]
-    task_1 = Task("by_2", {}, partial(lock_multiply, lock_1, 2), [foo], [bar])
-    task_2 = Task("by_3", {}, partial(lock_multiply, lock_2, 3), [bar], [baz])
-    assert task_1.foo.is_ready_for_reading  # foo is ready
-    assert not task_1.bar.is_ready_for_reading  # But bar is not ready
-    assert not task_2.baz.is_ready_for_reading  # neither does baz
+    task_1 = Task("by_2_blocked_task", {}, partial(lock_multiply, lock_1, 2), [foo], [bar])
+    task_2 = Task("by_3_blocked_task", {}, partial(lock_multiply, lock_2, 3), [bar], [baz])
+    assert foo.is_ready_for_reading  # foo is ready
+    assert not bar.is_ready_for_reading  # But bar is not ready
+    assert not baz.is_ready_for_reading  # neither does baz
     assert len(_Orchestrator.blocked_jobs) == 0
     submission_2 = _Orchestrator.submit_task(task_2)
     job_2 = submission_2._jobs[0]  # job 2 is submitted
@@ -228,21 +228,21 @@ def test_blocked_task():
             job_1 = submission_1._jobs[0]  # job 1 is submitted and locked
             assert_true_after_time(job_1.is_running)  # so it is still running
             assert dispatcher._nb_available_workers == 3  # One process used for job 1
-            assert not _DataManager._get(task_1.bar.id).is_ready_for_reading  # And bar still not ready
+            assert not _DataManager._get(bar.id).is_ready_for_reading  # And bar still not ready
             assert job_2.is_blocked  # the job_2 remains blocked
             assert_submission_status(submission_1, SubmissionStatus.RUNNING)
             assert_submission_status(submission_2, SubmissionStatus.BLOCKED)
         assert_true_after_time(job_1.is_completed)  # job1 unlocked and can complete
-        assert _DataManager._get(task_1.bar.id).is_ready_for_reading  # bar becomes ready
-        assert _DataManager._get(task_1.bar.id).read() == 2  # the data is computed and written
+        assert _DataManager._get(bar.id).is_ready_for_reading  # bar becomes ready
+        assert _DataManager._get(bar.id).read() == 2  # the data is computed and written
         assert_true_after_time(job_2.is_running)  # And job 2 can start running
         assert dispatcher._nb_available_workers == 3  # One process used for job 2
         assert len(_Orchestrator.blocked_jobs) == 0
         assert_submission_status(submission_1, SubmissionStatus.COMPLETED)
         assert_submission_status(submission_2, SubmissionStatus.RUNNING)
     assert_true_after_time(job_2.is_completed)  # job 2 unlocked so it can complete
-    assert _DataManager._get(task_2.baz.id).is_ready_for_reading  # baz becomes ready
-    assert _DataManager._get(task_2.baz.id).read() == 6  # the data is computed and written
+    assert _DataManager._get(baz.id).is_ready_for_reading  # baz becomes ready
+    assert _DataManager._get(baz.id).read() == 6  # the data is computed and written
     assert dispatcher._nb_available_workers == 4  # No more process used.
     assert submission_1.submission_status == SubmissionStatus.COMPLETED
     assert_submission_status(submission_2, SubmissionStatus.COMPLETED)
@@ -254,20 +254,20 @@ def test_blocked_submittable():
     m = multiprocessing.Manager()
     lock_1 = m.Lock()
     lock_2 = m.Lock()
-    foo_cfg = Config.configure_data_node("foo", default_data=1)
-    bar_cfg = Config.configure_data_node("bar")
-    baz_cfg = Config.configure_data_node("baz")
+    foo_cfg = Config.configure_data_node("foo_blocked_submittable", default_data=1)
+    bar_cfg = Config.configure_data_node("bar_blocked_submittable")
+    baz_cfg = Config.configure_data_node("baz_blocked_submittable")
     dispatcher = cast(_StandaloneJobDispatcher, _OrchestratorFactory._build_dispatcher(force_restart=True))
     dns = _DataManager._bulk_get_or_create([foo_cfg, bar_cfg, baz_cfg])
     foo = dns[foo_cfg]
     bar = dns[bar_cfg]
     baz = dns[baz_cfg]
-    task_1 = Task("by_2", {}, partial(lock_multiply, lock_1, 2), [foo], [bar])
-    task_2 = Task("by_3", {}, partial(lock_multiply, lock_2, 3), [bar], [baz])
+    task_1 = Task("by_2_blocked_submittable", {}, partial(lock_multiply, lock_1, 2), [foo], [bar])
+    task_2 = Task("by_3_blocked_submittable", {}, partial(lock_multiply, lock_2, 3), [bar], [baz])
     scenario = Scenario("scenario_config", {task_1, task_2}, {})
-    assert task_1.foo.is_ready_for_reading  # foo is ready
-    assert not task_1.bar.is_ready_for_reading  # But bar is not ready
-    assert not task_2.baz.is_ready_for_reading  # neither does baz
+    assert foo.is_ready_for_reading  # foo is ready
+    assert not bar.is_ready_for_reading  # But bar is not ready
+    assert not baz.is_ready_for_reading  # neither does baz
     assert len(_Orchestrator.blocked_jobs) == 0
     with lock_2:
         with lock_1:
@@ -275,21 +275,21 @@ def test_blocked_submittable():
             tasks_jobs = {job._task.id: job for job in submission._jobs}
             job_1, job_2 = tasks_jobs[task_1.id], tasks_jobs[task_2.id]
             assert_true_after_time(job_1.is_running)  # job 1 is submitted and locked so it is still running
-            assert not _DataManager._get(task_1.bar.id).is_ready_for_reading  # And bar still not ready
+            assert not _DataManager._get(bar.id).is_ready_for_reading  # And bar still not ready
             assert job_2.is_blocked  # the job_2 remains blocked
             assert_submission_status(submission, SubmissionStatus.RUNNING)
             assert dispatcher._nb_available_workers == 1
         assert_true_after_time(job_1.is_completed)  # job1 unlocked and can complete
-        assert _DataManager._get(task_1.bar.id).is_ready_for_reading  # bar becomes ready
-        assert _DataManager._get(task_1.bar.id).read() == 2  # the data is computed and written
+        assert _DataManager._get(bar.id).is_ready_for_reading  # bar becomes ready
+        assert _DataManager._get(bar.id).read() == 2  # the data is computed and written
         assert_true_after_time(job_2.is_running)  # And job 2 can start running
         # currently used since the previous process is not used anymore
         assert len(_Orchestrator.blocked_jobs) == 0
         assert_submission_status(submission, SubmissionStatus.RUNNING)
         assert dispatcher._nb_available_workers == 1  # Still one process
     assert_true_after_time(job_2.is_completed)  # job 2 unlocked so it can complete
-    assert _DataManager._get(task_2.baz.id).is_ready_for_reading  # baz becomes ready
-    assert _DataManager._get(task_2.baz.id).read() == 6  # the data is computed and written
+    assert _DataManager._get(baz.id).is_ready_for_reading  # baz becomes ready
+    assert _DataManager._get(baz.id).read() == 6  # the data is computed and written
     assert_submission_status(submission, SubmissionStatus.COMPLETED)
     assert dispatcher._nb_available_workers == 2  # No more process used.
 
