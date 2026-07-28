@@ -17,7 +17,6 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from flask import Blueprint, current_app, jsonify, render_template
 from flask.views import MethodView
 
-
 _RE_URL = re.compile(r"<(?:[^:<>]+:)?([^<>]+)>")
 
 
