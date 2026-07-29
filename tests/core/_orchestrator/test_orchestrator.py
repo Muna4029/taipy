@@ -244,7 +244,7 @@ def test_blocked_task():
     assert _DataManager._get(baz.id).is_ready_for_reading  # baz becomes ready
     assert _DataManager._get(baz.id).read() == 6  # the data is computed and written
     assert dispatcher._nb_available_workers == 4  # No more process used.
-    assert submission_1.submission_status == SubmissionStatus.COMPLETED
+    assert_submission_status(submission_1, SubmissionStatus.COMPLETED)
     assert_submission_status(submission_2, SubmissionStatus.COMPLETED)
 
 
