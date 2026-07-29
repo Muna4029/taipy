@@ -89,7 +89,7 @@ def test_submit_task_multithreading_multiple_task():
     assert task_1.output[f"{task_1.config_id}_output0"].read() == 42
     _assert_available_workers(dispatcher, 2)
     assert_submission_status(submission_1, SubmissionStatus.COMPLETED)
-    assert submission_2.submission_status == SubmissionStatus.COMPLETED
+    assert_submission_status(submission_2, SubmissionStatus.COMPLETED)
 
 
 @pytest.mark.orchestrator_dispatcher
@@ -182,16 +182,16 @@ def test_submit_task_multithreading_multiple_task_in_sync_way_to_check_job_statu
         assert task_0.output[f"{task_0.config_id}_output0"].read() == 0
         assert_submission_status(submission_0, SubmissionStatus.RUNNING)
         assert_submission_status(submission_1, SubmissionStatus.COMPLETED)
-        assert submission_2.submission_status == SubmissionStatus.COMPLETED
+        assert_submission_status(submission_2, SubmissionStatus.COMPLETED)
 
     assert_true_after_time(job_0.is_completed)
     assert_true_after_time(job_1.is_completed)
     assert_true_after_time(job_2.is_completed)
     _assert_available_workers(dispatcher, 2)
     assert task_0.output[f"{task_0.config_id}_output0"].read() == 42
-    assert _SubmissionManager._get(job_0.submit_id).submission_status == SubmissionStatus.COMPLETED
-    assert _SubmissionManager._get(job_1.submit_id).submission_status == SubmissionStatus.COMPLETED
-    assert _SubmissionManager._get(job_2.submit_id).submission_status == SubmissionStatus.COMPLETED
+    assert_submission_status(_SubmissionManager._get(job_0.submit_id), SubmissionStatus.COMPLETED)
+    assert_submission_status(_SubmissionManager._get(job_1.submit_id), SubmissionStatus.COMPLETED)
+    assert_submission_status(_SubmissionManager._get(job_2.submit_id), SubmissionStatus.COMPLETED)
 
 
 @pytest.mark.orchestrator_dispatcher
@@ -220,7 +220,7 @@ def test_blocked_task():
     job_2 = submission_2._jobs[0]  # job 2 is submitted
     assert_true_after_time(job_2.is_blocked)  # since bar is not is_valid the job 2 is blocked
     _assert_available_workers(dispatcher, 4)  # No process used
-    assert _SubmissionManager._get(job_2.submit_id).submission_status == SubmissionStatus.BLOCKED
+    assert_submission_status(_SubmissionManager._get(job_2.submit_id), SubmissionStatus.BLOCKED)
     _assert_blocked_jobs_count(1)  # One job (job 2) is blocked
     with lock_2:
         with lock_1:
@@ -244,7 +244,7 @@ def test_blocked_task():
     assert _DataManager._get(task_2.baz.id).is_ready_for_reading  # baz becomes ready
     assert _DataManager._get(task_2.baz.id).read() == 6  # the data is computed and written
     _assert_available_workers(dispatcher, 4)  # No more process used.
-    assert submission_1.submission_status == SubmissionStatus.COMPLETED
+    assert_submission_status(submission_1, SubmissionStatus.COMPLETED)
     assert_submission_status(submission_2, SubmissionStatus.COMPLETED)
 
 
