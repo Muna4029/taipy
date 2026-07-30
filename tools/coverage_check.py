@@ -29,6 +29,11 @@ def _ratio_to_percent(value: str) -> float:
     return ratio * 100 if ratio <= 1 else ratio
 
 
+def _write(message: str, *, error: bool = False) -> None:
+    stream = sys.stderr if error else sys.stdout
+    stream.write(f"{message}\n")
+
+
 def _get_total_coverage(coverage_file: Path) -> float:
     root = _parse_coverage_file(coverage_file)
     return _ratio_to_percent(root.attrib["line-rate"])
@@ -88,14 +93,16 @@ def _matching_coverage_keys(filename: str, coverage_files: Iterable[str]) -> Ite
     normalized_filename = filename.replace("\\", "/")
     for coverage_file in coverage_files:
         normalized_coverage_file = coverage_file.replace("\\", "/")
-        if normalized_filename == normalized_coverage_file or normalized_filename.endswith(f"/{normalized_coverage_file}"):
+        if normalized_filename == normalized_coverage_file or normalized_filename.endswith(
+            f"/{normalized_coverage_file}"
+        ):
             yield coverage_file
 
 
 def _get_changed_coverage(coverage_file: Path, base_branch: str) -> float:
     changed_lines = _changed_python_lines(base_branch)
     if not changed_lines:
-        print("No changed Python lines to check.")
+        _write("No changed Python lines to check.")
         return 100.0
 
     coverage_by_file = _coverage_by_file(coverage_file)
@@ -118,22 +125,22 @@ def _get_changed_coverage(coverage_file: Path, base_branch: str) -> float:
                 missing.append(f"{filename}:{line_number}")
 
     if total_lines == 0:
-        print("No executable changed Python lines to check.")
+        _write("No executable changed Python lines to check.")
         return 100.0
 
     percent = covered_lines / total_lines * 100
     if missing:
-        print("Missing coverage for changed lines:")
+        _write("Missing coverage for changed lines:")
         for item in missing:
-            print(f"  {item}")
+            _write(f"  {item}")
     return percent
 
 
 def _check_threshold(name: str, coverage: float, threshold: float) -> int:
-    print(f"{name} coverage: {coverage:.2f}%")
-    print(f"Required coverage: {threshold:.2f}%")
+    _write(f"{name} coverage: {coverage:.2f}%")
+    _write(f"Required coverage: {threshold:.2f}%")
     if coverage < threshold:
-        print(f"{name} coverage is below the required threshold.", file=sys.stderr)
+        _write(f"{name} coverage is below the required threshold.", error=True)
         return 1
     return 0
 
