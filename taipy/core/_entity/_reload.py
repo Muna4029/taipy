@@ -15,8 +15,8 @@ from typing import Dict, Type
 
 from ...common._check_dependencies import EnterpriseEditionUtils
 from .._manager._manager import _Manager
-from ..exceptions.exceptions import NonExistingEntity
 from ..common._utils import _load_fct
+from ..exceptions.exceptions import NonExistingEntity
 from ..notification import EventOperation, Notifier, _make_event
 
 
