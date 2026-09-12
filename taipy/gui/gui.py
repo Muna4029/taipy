@@ -1185,6 +1185,8 @@ class Gui:
             elif isinstance(v, _DoNotUpdate):
                 modified_vars.remove(k)
         custom_page_filtered_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+        if not isinstance(custom_page_filtered_types, tuple):
+            custom_page_filtered_types = (custom_page_filtered_types,) if not isinstance(custom_page_filtered_types, list) else tuple(custom_page_filtered_types)
         in_custom_page_context = _Hooks()._is_in_custom_page_context()
         for _var in modified_vars:
             if not self.__is_front_end_variable(_var) and not in_custom_page_context:
@@ -1289,6 +1291,8 @@ class Gui:
         # Use custom attrgetter function to allow value binding for _MapDict
         newvalue = _getscopeattr_drill(self, var_name)  # type: ignore[arg-type]
         custom_page_filtered_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+        if not isinstance(custom_page_filtered_types, tuple):
+            custom_page_filtered_types = (custom_page_filtered_types,) if not isinstance(custom_page_filtered_types, list) else tuple(custom_page_filtered_types)
         if (
             not isinstance(newvalue, _TaipyData)
             and custom_page_filtered_types
