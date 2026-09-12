@@ -276,8 +276,19 @@ class _GuiCoreContext(_CoreEventConsumerBase):
         return None
 
     def filter_entities(
-        self, cycle_scenario: t.List, col: str, col_type: str, is_dn: bool, action: str, val: t.Any, col_fn=None
+        self,
+        cycle_scenario: t.Union[t.List[t.Any], DataNode, t.Any, None],
+        col: str,
+        col_type: str,
+        is_dn: bool,
+        action: str,
+        val: t.Any,
+        col_fn=None,
     ):
+        if cycle_scenario is None:
+            return []
+        if not isinstance(cycle_scenario, list):
+            return cycle_scenario
         cycle_scenario[2] = [
             e for e in cycle_scenario[2] if _invoke_action(e, col, col_type, is_dn, action, val, col_fn)
         ]

@@ -222,6 +222,8 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         finally:
             excel_file.close()
 
+        if isinstance(user_provided_sheet_names, tuple):
+            user_provided_sheet_names = list(user_provided_sheet_names)
         if len(user_provided_sheet_names) == 1:
             return work_books[cast(list, user_provided_sheet_names)[0]]
 
