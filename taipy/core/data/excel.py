@@ -56,13 +56,13 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
-        edits: List[Edit] = None,
-        version: str = None,
+        edits: Optional[List[Edit]] = None,
+        version: Optional[str] = None,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
         editor_id: Optional[str] = None,
         editor_expiration_date: Optional[datetime] = None,
-        properties: Dict = None,
+        properties: Optional[Dict] = None,
     ) -> None:
         self.id = id or self._new_id(config_id)
 
@@ -117,7 +117,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         """Return the storage type of the data node: "excel"."""
         return cls.__STORAGE_TYPE
 
-    def write_with_column_names(self, data: Any, columns: List[str] = None, editor_id: Optional[str] = None) -> None:
+    def write_with_column_names(self, data: Any, columns: Optional[List[str]] = None, editor_id: Optional[str] = None) -> None:
         """Write a set of columns.
 
         Arguments:
@@ -179,6 +179,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             user_provided_sheet_names = properties.get(self.__SHEET_NAME_PROPERTY) or []
             if not isinstance(user_provided_sheet_names, (list, set, tuple)):
                 user_provided_sheet_names = [user_provided_sheet_names]
+            user_provided_sheet_names = list(user_provided_sheet_names)
 
             provided_sheet_names = user_provided_sheet_names or sheet_names
 
@@ -277,7 +278,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             data.columns = pd.Index(columns, dtype="object")
         return data
 
-    def _append_excel_with_multiple_sheets(self, data: Any, columns: List[str] = None):
+    def _append_excel_with_multiple_sheets(self, data: Any, columns: Optional[List[str]] = None):
         with pd.ExcelWriter(self._path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
             # Each key stands for a sheet name
             for sheet_name in data.keys():
@@ -317,7 +318,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         else:
             write_excel_fct(path, *args, **kwargs)
 
-    def _write_excel_with_multiple_sheets(self, path: str, data: Any, columns: List[str] = None):
+    def _write_excel_with_multiple_sheets(self, path: str, data: Any, columns: Optional[List[str]] = None):
         with pd.ExcelWriter(path) as writer:
             # Each key stands for a sheet name
             properties = self.properties
