@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
+setuptools = ">=68.0.0,<69.0.0"
 fastparquet = "*"
 freezegun = "*"
 ipython = "*"
