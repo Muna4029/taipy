@@ -12,9 +12,9 @@
 import taipy as tp
 from taipy import Gui, Orchestrator
 
-from .config.config import configure
-from .pages import job_page, scenario_page
-from .pages.root import content, root, selected_data_node, selected_scenario
+from {{cookiecutter.__root_folder}}.config.config import configure
+from {{cookiecutter.__root_folder}}.pages import job_page, scenario_page
+from {{cookiecutter.__root_folder}}.pages.root import content, root, selected_data_node, selected_scenario
 
 
 def on_init(state): ...

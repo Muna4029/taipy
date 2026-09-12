@@ -285,7 +285,7 @@ class _GuiCoreContext(_CoreEventConsumerBase):
 
     def filter_entities(
         self,
-        cycle_scenario: t.List,
+        cycle_scenario: t.Sequence,
         col: str,
         col_type: str,
         is_dn: bool,

@@ -1120,7 +1120,14 @@ class Gui:
                 modified_vars.remove(k)
         for _var in modified_vars:
             newvalue = values.get(_var)
-            custom_page_filtered_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+            raw_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+            custom_page_filtered_types = (
+                None
+                if raw_types is None
+                else tuple(raw_types)
+                if isinstance(raw_types, (list, tuple))
+                else (raw_types,)
+            )
             if isinstance(newvalue, (_TaipyData)) or (
                 custom_page_filtered_types and isinstance(newvalue, custom_page_filtered_types)
             ):  # type: ignore
@@ -1216,7 +1223,14 @@ class Gui:
     def __request_data_update(self, var_name: str, payload: t.Any) -> None:
         # Use custom attrgetter function to allow value binding for _MapDict
         newvalue = _getscopeattr_drill(self, var_name)  # type: ignore[arg-type]
-        custom_page_filtered_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+        raw_types = _Hooks()._get_resource_handler_data_layer_supported_types()
+        custom_page_filtered_types = (
+            None
+            if raw_types is None
+            else tuple(raw_types)
+            if isinstance(raw_types, (list, tuple))
+            else (raw_types,)
+        )
         if (
             not isinstance(newvalue, _TaipyData)
             and custom_page_filtered_types

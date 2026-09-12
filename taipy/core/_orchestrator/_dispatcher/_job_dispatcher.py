@@ -18,6 +18,7 @@ from typing import Optional
 
 from taipy.common.config import Config
 from taipy.common.logger._taipy_logger import _TaipyLogger
+from taipy.core.exceptions import NonExistingEntity
 
 from ...data._data_manager_factory import _DataManagerFactory
 from ...job._job_manager_factory import _JobManagerFactory
@@ -96,7 +97,11 @@ class _JobDispatcher(threading.Thread):
         if job.force or self._needs_to_run(job.task):
             if job.force:
                 self._logger.info(f"job {job.id} is forced to be executed.")
-            job.running()
+            try:
+                job.running()
+            except NonExistingEntity:
+                self._logger.warning(f"Job {job.id} removed before running")
+                return
             self._dispatch(job)
         else:
             job._unlock_edit_on_outputs()
