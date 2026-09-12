@@ -245,6 +245,11 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         properties = self.properties
         if sheet_names is None:
             sheet_names = properties[self.__SHEET_NAME_PROPERTY]
+        if sheet_names is not None:
+            if isinstance(sheet_names, (list, tuple, set)):
+                sheet_names = list(sheet_names)
+            else:
+                sheet_names = [sheet_names]
         if not properties[self._HAS_HEADER_PROPERTY]:
             kwargs["header"] = None
         return sheet_names, kwargs
