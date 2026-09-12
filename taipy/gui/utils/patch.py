@@ -50,6 +50,7 @@ def _patch_value(value: t.Any, change: t.Optional[dict] = None, remove: t.Option
                                 ]
                                 + value[k + 1 + len(v) :]
                             )
+                            original_value = value
                         else:
                             value[k] = v
         if remove:
