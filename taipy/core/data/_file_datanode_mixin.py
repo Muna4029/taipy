@@ -47,8 +47,9 @@ class _FileDataNodeMixin:
     __logger = _TaipyLogger._get_logger()
 
     def __init__(self, properties: Dict) -> None:
-        self._path: str = cast(str, properties.get(self._PATH_KEY, properties.get(self._DEFAULT_PATH_KEY)))
-        self._is_generated: bool = properties.get(self._IS_GENERATED_KEY, self._path is None)
+        path_value = properties.get(self._PATH_KEY, properties.get(self._DEFAULT_PATH_KEY))
+        self._path: str = cast(str, path_value) if path_value is not None else ""
+        self._is_generated: bool = properties.get(self._IS_GENERATED_KEY, path_value is None)
         self._last_edit_date: Optional[datetime] = None
 
         if self._path and ".data" in self._path:
@@ -155,7 +156,7 @@ class _FileDataNodeMixin:
         try:
             upload_data = self._read_from_path(str(up_path))
         except Exception as err:
-            self.__logger.error(f"Error uploading `{up_path.name}` to data " f"node `{self.id}`:")  # type: ignore[attr-defined]
+            self.__logger.error(f"Error uploading `{up_path.name}` to data node `{self.id}`:")  # type: ignore[attr-defined]
             self.__logger.error(f"Error: {err}")
             reasons._add_reason(self.id, UploadFileCanNotBeRead(up_path.name, self.id))  # type: ignore[attr-defined]
             return reasons
@@ -248,5 +249,5 @@ class _FileDataNodeMixin:
             else:
                 shutil.copy(self._path, new_path)
             normalize_path = _normalize_path(new_path)
-            dest._path = normalize_path # type: ignore[attr-defined]
+            dest._path = normalize_path  # type: ignore[attr-defined]
             dest._properties[self._PATH_KEY] = normalize_path

@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set, Union, cast
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -189,7 +189,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             if isinstance(exposed_type, List):
                 if len(provided_sheet_names) != len(exposed_type):
                     raise ExposedTypeLengthMismatch(
-                        f"Expected {len(provided_sheet_names)} exposed types, got " f"{len(exposed_type)}"
+                        f"Expected {len(provided_sheet_names)} exposed types, got {len(exposed_type)}"
                     )
 
             for i, sheet_name in enumerate(provided_sheet_names):
@@ -225,7 +225,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             excel_file.close()
 
         if len(user_provided_sheet_names) == 1:
-            return work_books[cast(list, user_provided_sheet_names)[0]]
+            return work_books[list(user_provided_sheet_names)[0]]
 
         return work_books
 
@@ -264,6 +264,8 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         with pd.ExcelWriter(self._path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
             if sheet_name:
                 if not isinstance(sheet_name, str):
+                    if not isinstance(sheet_name, list):
+                        sheet_name = list(sheet_name)
                     sheet_name = sheet_name[0]
                 append_excel_fct(
                     writer, *args, **kwargs, sheet_name=sheet_name, startrow=writer.sheets[sheet_name].max_row
@@ -309,6 +311,8 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
     def _write_excel_with_single_sheet(self, write_excel_fct, path, *args, **kwargs):
         if sheet_name := self.properties.get(self.__SHEET_NAME_PROPERTY):
             if not isinstance(sheet_name, str):
+                if not isinstance(sheet_name, list):
+                    sheet_name = list(sheet_name)
                 if len(sheet_name) > 1:
                     raise SheetNameLengthMismatch
                 else:

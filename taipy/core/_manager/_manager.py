@@ -125,7 +125,7 @@ class _Manager(Generic[EntityType]):
         try:
             return cls._repository._load(entity_id)
         except ModelNotFound:
-            cls._logger.error(f"{cls._ENTITY_NAME} not found: {entity_id}")
+            cls._logger.warning(f"{cls._ENTITY_NAME} not found: {entity_id}")
             return default
 
     @classmethod
