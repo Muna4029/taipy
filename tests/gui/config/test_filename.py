@@ -11,8 +11,6 @@
 
 import pathlib
 
-import pytest
-
 from taipy.gui import Gui
 
 
@@ -24,4 +22,3 @@ def test_env_filename():
     assert service_config["run_browser"] is False # type: ignore
     assert service_config["port"] == 5555 # type: ignore
     gui.stop()
-
