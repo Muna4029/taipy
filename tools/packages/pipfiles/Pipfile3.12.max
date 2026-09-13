@@ -38,6 +38,8 @@ types-python-dateutil = "*"
 types-pytz = "*"
 types-toml = ">=0.10.0"
 types-tzlocal = "*"
+setuptools = "<81"
+fastjsonschema = "<2.21"
 
 [requires]
 python_version = "3"

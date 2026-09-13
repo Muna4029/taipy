@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set, Union, cast
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -177,8 +177,10 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             sheet_names = excel_file.sheetnames
 
             user_provided_sheet_names = properties.get(self.__SHEET_NAME_PROPERTY) or []
-            if not isinstance(user_provided_sheet_names, (list, set, tuple)):
+            if isinstance(user_provided_sheet_names, str):
                 user_provided_sheet_names = [user_provided_sheet_names]
+            elif not isinstance(user_provided_sheet_names, list):
+                user_provided_sheet_names = list(user_provided_sheet_names)
 
             provided_sheet_names = user_provided_sheet_names or sheet_names
 
@@ -225,7 +227,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             excel_file.close()
 
         if len(user_provided_sheet_names) == 1:
-            return work_books[cast(list, user_provided_sheet_names)[0]]
+            return work_books[user_provided_sheet_names[0]]
 
         return work_books
 
