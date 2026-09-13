@@ -87,6 +87,7 @@ unfixable = []
 "taipy/common/config/stubs/pyi_header.py" = ["F401", "F403"]  # unused import
 "taipy/templates/*" = ["F401", "F403", "T201"]  # unused import, `print` found
 "taipy/gui/utils/types.py" = ["B024"] # abstract base class with no abstract methods
+"tools/coverage_check.py" = ["T201"]  # `print` found (CLI tool)
 
 [tool.ruff.lint.mccabe]
 max-complexity = 18
