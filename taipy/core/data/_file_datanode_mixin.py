@@ -211,13 +211,14 @@ class _FileDataNodeMixin:
             self._last_edit_date = datetime.now()
 
     def _get_last_modified_datetime(self) -> Optional[datetime]:
-        if self._path and os.path.isfile(self._path):
-            return datetime.fromtimestamp(os.path.getmtime(self._path))
+        path = self._path
+        if path and os.path.isfile(path):
+            return datetime.fromtimestamp(os.path.getmtime(path))
 
         last_modified_datetime = None
-        if self._path and os.path.isdir(self._path):
-            for filename in os.listdir(self._path):
-                filepath = os.path.join(self._path, filename)
+        if path and os.path.isdir(path):
+            for filename in os.listdir(path):
+                filepath = os.path.join(path, filename)
                 if os.path.isfile(filepath):
                     file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
 
