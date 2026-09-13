@@ -359,7 +359,7 @@ class _GuiCoreContext(_CoreEventConsumerBase):
             filtered_list = [
                 e
                 if isinstance(e, Scenario)
-                else self.filter_entities(
+                else self.filter_entities(  # type: ignore[arg-type]
                     t.cast(list, e), t.cast(str, col), col_type, is_datanode_prop, action, val, col_fn, match_case
                 )
                 for e in filtered_list
@@ -681,7 +681,7 @@ class _GuiCoreContext(_CoreEventConsumerBase):
             filtered_list = [
                 e
                 if isinstance(e, DataNode)
-                else self.filter_entities(
+                else self.filter_entities(  # type: ignore[arg-type]
                     t.cast(list, d), t.cast(str, col), col_type, False, action, val, col_fn, match_case
                 )
                 for e in filtered_list

@@ -2138,7 +2138,9 @@ class Gui:
             from ._renderers import Markdown
 
             page = Markdown(page, frame=None)
-        elif not isinstance(page, Page):  # pragma: no cover
+        elif isinstance(page, Page):
+            pass
+        else:  # pragma: no cover
             raise Exception(
                 f'Parameter "page" is invalid for page name "{name if name != Gui.__root_page_name else "/"}".'
             )
@@ -2294,7 +2296,9 @@ class Gui:
             from ._renderers import Markdown
 
             page = Markdown(page, frame=None)
-        elif not isinstance(page, Page):  # pragma: no cover
+        elif isinstance(page, Page):
+            pass
+        else:  # pragma: no cover
             raise Exception(f'Partial name "{new_partial._route}" has an invalid Page.')
         new_partial._renderer = page
         # Append partial to _config

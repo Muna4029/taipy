@@ -12,15 +12,14 @@
 import argparse
 import subprocess
 import sys
-
-import xmltodict
+import xml.etree.ElementTree as ET
 
 
 def check_total_coverage(coverage_file, threshold=80):
     """Check the total project coverage."""
-    with open(coverage_file) as f:
-        data = xmltodict.parse(f.read())
-    total_coverage = float(data["coverage"]["@line-rate"]) * 100
+    tree = ET.parse(coverage_file)
+    root = tree.getroot()
+    total_coverage = float(root.attrib["line-rate"]) * 100
     print(f"Total Coverage: {total_coverage:.2f}%")  # noqa: T201
     if total_coverage < threshold:
         print(f"Total project coverage is below {threshold}%: {total_coverage:.2f}%")  # noqa: T201
@@ -29,22 +28,33 @@ def check_total_coverage(coverage_file, threshold=80):
 
 def check_changed_files_coverage(coverage_file, changed_files, threshold=80):
     """Check the coverage of changed files."""
-    with open(coverage_file) as f:
-        data = xmltodict.parse(f.read())
+    tree = ET.parse(coverage_file)
+    root = tree.getroot()
 
     # Handle multiple packages in the coverage report
-    packages = data["coverage"]["packages"]["package"]
-    if not isinstance(packages, list):
-        packages = [packages]
+    packages = root.find("packages")
+    if packages is None:
+        print("No packages found in coverage report.")  # noqa: T201
+        sys.exit(1)
+    package_list = packages.findall("package")
+    if not package_list:
+        package_list = [packages]
 
     # Extract coverage data for all files
     files = {}
-    for package in packages:
-        classes = package["classes"]["class"]
-        if not isinstance(classes, list):
-            classes = [classes]
-        for cls in classes:
-            files[cls["@filename"]] = float(cls["@line-rate"]) * 100
+    for package in package_list:
+        classes = package.find("classes")
+        if classes is None:
+            continue
+        class_list = classes.findall("class")
+        if not class_list:
+            class_list = [classes]
+        for cls in class_list:
+            filename = cls.attrib.get("filename")
+            line_rate = cls.attrib.get("line-rate")
+            if filename and line_rate:
+                files[filename] = float(line_rate) * 100
+
     qty = 0
     sum_coverage = 0
     for file in changed_files:
@@ -81,7 +91,7 @@ def get_changed_files(base_branch):
         ]
         return changed_files
     except subprocess.CalledProcessError as e:
-        print(f"Error fetching changed files: {e}") # noqa: T201
+        print(f"Error fetching changed files: {e}")  # noqa: T201
         sys.exit(1)
 
 
@@ -98,10 +108,10 @@ if __name__ == "__main__":
         check_total_coverage(args.coverage_file, args.threshold)
     elif args.command == "check-changed":
         if not args.base_branch:
-            print("Error: --base-branch is required for check-changed") # noqa: T201
+            print("Error: --base-branch is required for check-changed")  # noqa: T201
             sys.exit(1)
         changed_files = get_changed_files(args.base_branch)
         if not changed_files:
-            print("No relevant Python files changed.") # noqa: T201
+            print("No relevant Python files changed.")  # noqa: T201
             sys.exit(0)
         check_changed_files_coverage(args.coverage_file, changed_files, args.threshold)

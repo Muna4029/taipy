@@ -45,11 +45,15 @@ def _patch_value(value: t.Any, change: t.Optional[dict] = None, remove: t.Option
                             value = (
                                 value[:k]
                                 + [
-                                    _patch_value(value[k + idx], nv) if k + idx < len(value) else nv
+                                    _patch_value(value[k + idx], nv)
+                                    if isinstance(nv, dict) and k + idx < len(value)
+                                    else nv
                                     for idx, nv in enumerate(v)
                                 ]
-                                + value[k + 1 + len(v) :]
+                                + value[k + len(v) :]
                             )
+                            original_value = value
+
                         else:
                             value[k] = v
         if remove:
