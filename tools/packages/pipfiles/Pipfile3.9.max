@@ -66,6 +66,8 @@ version = "==4.2.13"
 "markdown" = {version="==3.7"}
 "python-dotenv" = {version="==1.0.1"}
 "pytz" = {version="==2024.2"}
+"setuptools" = {version="<81"}
+"fastjsonschema" = {version="<2.21"}
 "tzlocal" = {version="==5.2"}
 "gevent" = {version="==24.11.1"}
 "gevent-websocket" = {version="==0.10.1"}
