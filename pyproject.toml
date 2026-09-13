@@ -7,30 +7,27 @@ name = "taipy"
 description = "A 360° open-source platform from Python pilots to production-ready web apps."
 readme = "package_desc.md"
 requires-python = ">=3.9,<3.13"
-license = {text = "Apache-2.0"}
-authors = [{name = "Avaiga", email = "dev@taipy.io"}]
+license = { text = "Apache-2.0" }
+authors = [{ name = "Avaiga", email = "dev@taipy.io" }]
 keywords = ["taipy"]
 classifiers = [
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 dynamic = ["version", "dependencies"]
 
 [tool.setuptools.packages]
-find = {include = ["taipy", "taipy.*"]}
+find = { include = ["taipy", "taipy.*"] }
 
 [project.optional-dependencies]
 ngrok = ["pyngrok>=5.1,<6.0"]
-image = [
-    "python-magic>=0.4.24,<0.5",
-    "python-magic-bin>=0.4.14,<0.5",
-]
+image = ["python-magic>=0.4.24,<0.5", "python-magic-bin>=0.4.14,<0.5"]
 rdp = ["rdp>=0.8"]
 arrow = ["pyarrow>=16.0.0,<19.0"]
 mssql = ["pyodbc>=4"]
@@ -49,31 +46,31 @@ Security = "https://github.com/Avaiga/taipy?tab=security-ov-file#readme"
 
 [tool.ruff]
 exclude = [
-    ".git",
-    "__pycache__",
-    "setup.py",
-    "build",
-    "dist",
-    "releases",
-    ".venv",
-    ".mypy_cache",
-    ".pytest_cache",
-    ".vscode",
-    ".github",
+  ".git",
+  "__pycache__",
+  "setup.py",
+  "build",
+  "dist",
+  "releases",
+  ".venv",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".vscode",
+  ".github",
 ]
 line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "F",  # pyflakes errors
-    "W",  # pycodestyle warnings
-    "C",  # mccabe complexity checker
-    "B",  # bugbear best practices checker
-    "T",  # mypy type errors
-    "B", # flake8-bugbear best practices checker
-    "I001", # isort import order
+  "E",    # pycodestyle errors
+  "F",    # pyflakes errors
+  "W",    # pycodestyle warnings
+  "C",    # mccabe complexity checker
+  "B",    # bugbear best practices checker
+  "T",    # mypy type errors
+  "B",    # flake8-bugbear best practices checker
+  "I001", # isort import order
 ]
 ignore = []
 
@@ -82,11 +79,13 @@ fixable = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]  # unused import
-"_init.py" = ["F401", "F403"]  # unused import
-"tools/config/pyi_header.py" = ["F401", "F403"]  # unused import
-"taipy/templates/*" = ["F401", "F403", "T201"]  # unused import, `print` found
-"taipy/gui/utils/types.py" = ["B024"] # abstract base class with no abstract methods
+"__init__.py" = ["F401", "F403"] # unused import
+"_init.py" = ["F401", "F403"] # unused import
+"tools/config/pyi_header.py" = ["F401", "F403"] # unused import
+"taipy/templates/*" = ["F401", "F403", "T201"] # unused import, `print` found
+"taipy/gui/utils/types.py" = [
+  "B024",
+] # abstract base class with no abstract methods
 
 [tool.ruff.lint.mccabe]
 max-complexity = 18

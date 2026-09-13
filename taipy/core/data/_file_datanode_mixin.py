@@ -211,13 +211,14 @@ class _FileDataNodeMixin:
             self._last_edit_date = datetime.now()
 
     def _get_last_modified_datetime(self) -> Optional[datetime]:
-        if self._path and os.path.isfile(self._path):
-            return datetime.fromtimestamp(os.path.getmtime(self._path))
+        path = self._path
+        if path and os.path.isfile(path):
+            return datetime.fromtimestamp(os.path.getmtime(path))
 
         last_modified_datetime = None
-        if self._path and os.path.isdir(self._path):
-            for filename in os.listdir(self._path):
-                filepath = os.path.join(self._path, filename)
+        if path and os.path.isdir(path):
+            for filename in os.listdir(path):
+                filepath = os.path.join(path, filename)
                 if os.path.isfile(filepath):
                     file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
 
@@ -240,13 +241,14 @@ class _FileDataNodeMixin:
         return new_path
 
     def _duplicate_file(self, dest: DataNode):
-        if os.path.exists(self._path):
-            folder_path, base_name = os.path.split(self._path)
+        path = self._path
+        if os.path.exists(path):
+            folder_path, base_name = os.path.split(path)
             new_path = os.path.join(folder_path, f"{dest.id}_{self.__TAIPY_DUPLICATE}_{base_name}")
-            if os.path.isdir(self._path):
-                shutil.copytree(self._path, new_path)
+            if os.path.isdir(path):
+                shutil.copytree(path, new_path)
             else:
-                shutil.copy(self._path, new_path)
+                shutil.copy(path, new_path)
             normalize_path = _normalize_path(new_path)
             dest._path = normalize_path # type: ignore[attr-defined]
             dest._properties[self._PATH_KEY] = normalize_path

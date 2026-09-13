@@ -12,13 +12,13 @@ storage_type = "csv"
 
 [TASK.clean_data]
 function = "algos.algos.clean_data:function"
-inputs = [ "initial_dataset:SECTION", "replacement_type:SECTION",]
-outputs = [ "cleaned_dataset:SECTION",]
+inputs = ["initial_dataset:SECTION", "replacement_type:SECTION"]
+outputs = ["cleaned_dataset:SECTION"]
 skippable = "False:bool"
 
 [SCENARIO.scenario_configuration]
-tasks = [ "clean_data:SECTION",]
+tasks = ["clean_data:SECTION"]
 frequency = "DAILY:FREQUENCY"
-sequences.scenario_configuration_sequence = [ "clean_data:SECTION",]
+sequences.scenario_configuration_sequence = ["clean_data:SECTION"]
 
 [SCENARIO.scenario_configuration.comparators]
