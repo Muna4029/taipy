@@ -177,8 +177,8 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             sheet_names = excel_file.sheetnames
 
             user_provided_sheet_names = properties.get(self.__SHEET_NAME_PROPERTY) or []
-            if not isinstance(user_provided_sheet_names, (list, set, tuple)):
-                user_provided_sheet_names = [user_provided_sheet_names]
+            if not isinstance(user_provided_sheet_names, list):
+                user_provided_sheet_names = list(user_provided_sheet_names)
 
             provided_sheet_names = user_provided_sheet_names or sheet_names
 
@@ -264,7 +264,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
         with pd.ExcelWriter(self._path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
             if sheet_name:
                 if not isinstance(sheet_name, str):
-                    sheet_name = sheet_name[0]
+                    sheet_name = list(sheet_name)[0]
                 append_excel_fct(
                     writer, *args, **kwargs, sheet_name=sheet_name, startrow=writer.sheets[sheet_name].max_row
                 )
@@ -312,7 +312,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
                 if len(sheet_name) > 1:
                     raise SheetNameLengthMismatch
                 else:
-                    sheet_name = sheet_name[0]
+                    sheet_name = list(sheet_name)[0]
             write_excel_fct(path, *args, **kwargs, sheet_name=sheet_name)
         else:
             write_excel_fct(path, *args, **kwargs)

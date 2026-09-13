@@ -257,7 +257,9 @@ def test_get_all_on_multiple_versions_environment():
     for version in range(1, 3):
         for i in range(5):
             _ScenarioManager._repository._save(
-                Scenario(f"config_id_{i+version}", [], {}, [], ScenarioId(f"id{i}_v{version}"), version=f"{version}.0")
+                Scenario(
+                    f"config_id_{i + version}", [], {}, [], ScenarioId(f"id{i}_v{version}"), version=f"{version}.0"
+                )
             )
 
     _VersionManager._set_experiment_version("1.0")
