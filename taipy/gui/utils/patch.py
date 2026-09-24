@@ -42,14 +42,14 @@ def _patch_value(value: t.Any, change: t.Optional[dict] = None, remove: t.Option
                         value[k] = _patch_value(value[k], v)
                     else:
                         if isinstance(v, list):
-                            value = (
-                                value[:k]
-                                + [
-                                    _patch_value(value[k + idx], nv) if k + idx < len(value) else nv
-                                    for idx, nv in enumerate(v)
-                                ]
-                                + value[k + 1 + len(v) :]
-                            )
+                            # If the element at index k is a dict and the patch is a list of dicts,
+                            # patch the dict with each element in the list
+                            if isinstance(value[k], dict) and all(isinstance(item, dict) for item in v):
+                                for patch in v:
+                                    value[k] = _patch_value(value[k], patch)
+                                value = value[:k] + [value[k]] + value[k + 1 :]
+                            else:
+                                value = value[:k] + v
                         else:
                             value[k] = v
         if remove:
@@ -61,4 +61,4 @@ def _patch_value(value: t.Any, change: t.Optional[dict] = None, remove: t.Option
                         value[k] = _patch_value(value[k], remove=v)
                     else:
                         del value[k]
-    return original_value
+    return value
