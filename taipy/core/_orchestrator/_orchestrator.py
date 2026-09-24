@@ -254,7 +254,7 @@ class _Orchestrator(_AbstractOrchestrator):
     def __unblock_jobs(cls) -> None:
         with cls.lock:
             cls.__logger.debug("Acquiring lock to unblock jobs.")
-            for job in cls.blocked_jobs:
+            for job in list(cls.blocked_jobs):
                 if not cls._is_blocked(job):
                     cls.__logger.debug(f"Unblocking job: {job.id}.")
                     job.pending()
@@ -292,7 +292,7 @@ class _Orchestrator(_AbstractOrchestrator):
     def __find_subsequent_jobs(cls, submit_id, output_dn_config_ids: Set) -> Set[Job]:
         next_output_dn_config_ids = set()
         subsequent_jobs = set()
-        for job in cls.blocked_jobs:
+        for job in list(cls.blocked_jobs):
             job_input_dn_config_ids = job.task.input.keys()
             if job.submit_id == submit_id and len(output_dn_config_ids.intersection(job_input_dn_config_ids)) > 0:
                 next_output_dn_config_ids.update(job.task.output.keys())
