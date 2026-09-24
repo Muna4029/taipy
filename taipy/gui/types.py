@@ -126,6 +126,10 @@ class PropertyType(Enum):
     """
     The property is JSON serializable.
     """
+    to_json = _TaipyToJson
+    """
+    The property is JSON serializable.
+    """
     dynamic_json = _TaipyToDynamicJson
     """
     The property is JSON serializable and dynamic.

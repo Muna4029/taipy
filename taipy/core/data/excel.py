@@ -225,7 +225,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             excel_file.close()
 
         if len(user_provided_sheet_names) == 1:
-            return work_books[cast(list, user_provided_sheet_names)[0]]
+            return work_books[list(user_provided_sheet_names)[0]]
 
         return work_books
 
