@@ -14,7 +14,7 @@ import json
 import typing as t
 from abc import ABC, abstractmethod
 from datetime import datetime
-from inspect import ismethod, signature
+from inspect import ismethod
 
 from .._warnings import _warn
 from ..json_properties import JsonProperty
@@ -229,9 +229,13 @@ class _TaipyToJson(_TaipyBase):
             except Exception as e:
                 _warn("Issue while serializing 'JsonProperty'.", e)
         elif method:= getattr(val, "to_json", None):
-            if ismethod(method) and len(signature(method).parameters) == 0:
+            if ismethod(method):
                 try:
-                    return method()
+                    result = method()
+                    # Handle case where to_json() returns a string (like Plotly figures)
+                    if isinstance(result, str):
+                        return json.loads(result)
+                    return result
                 except Exception as e:
                     _warn("Issue while serializing object.", e)
             else:
