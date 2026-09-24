@@ -20,6 +20,7 @@ from taipy.common.config import Config
 from taipy.common.logger._taipy_logger import _TaipyLogger
 
 from ...data._data_manager_factory import _DataManagerFactory
+from ...exceptions.exceptions import NonExistingEntity
 from ...job._job_manager_factory import _JobManagerFactory
 from ...job.job import Job
 from ...task.task import Task
@@ -96,7 +97,11 @@ class _JobDispatcher(threading.Thread):
         if job.force or self._needs_to_run(job.task):
             if job.force:
                 self._logger.info(f"job {job.id} is forced to be executed.")
-            job.running()
+            try:
+                job.running()
+            except NonExistingEntity:
+                self._logger.warning(f"Job {job.id} no longer exists. Skipping execution.")
+                return
             self._dispatch(job)
         else:
             job._unlock_edit_on_outputs()
@@ -151,15 +156,25 @@ class _JobDispatcher(threading.Thread):
     def _update_job_status(job: Job, exceptions):
         """Update the job status based on the success or the failure of its execution."""
         if exceptions:
-            job.failed()
+            try:
+                job.failed()
+            except NonExistingEntity:
+                _TaipyLogger._get_logger().warning(f"Job {job.id} no longer exists. Cannot mark as failed.")
+                return
             _TaipyLogger._get_logger().error(f" {len(exceptions)} errors occurred during execution of job {job.id}")
             for e in exceptions:
                 st = "".join(traceback.format_exception(type(e), value=e, tb=e.__traceback__))
                 job._stacktrace.append(st)
                 _TaipyLogger._get_logger().error(st)
-            _JobManagerFactory._build_manager()._update(job)
+            try:
+                _JobManagerFactory._build_manager()._update(job)
+            except NonExistingEntity:
+                _TaipyLogger._get_logger().warning(f"Job {job.id} no longer exists. Cannot update.")
         else:
             for output in job.task.output.values():
                 output.track_edit(job_id=job.id)
                 output.unlock_edit()
-            job.completed()
+            try:
+                job.completed()
+            except NonExistingEntity:
+                _TaipyLogger._get_logger().warning(f"Job {job.id} no longer exists. Cannot mark as completed.")
