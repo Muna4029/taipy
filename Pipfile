@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+setuptools = "<81"
+fastjsonschema = "<2.21"
 apispec = {extras = ["yaml"], version = "==6.3"}
 apispec-webframeworks = "==0.5.2"
 cookiecutter = "==2.1.1"
