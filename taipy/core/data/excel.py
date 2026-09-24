@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set, Union, cast
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -216,7 +216,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
                 if properties[self._HAS_HEADER_PROPERTY] and res:
                     header = res.pop(0)
                     for i, row in enumerate(res):
-                        res[i] = sheet_exposed_type(**dict([[h, r] for h, r in zip(header, row)]))
+                        res[i] = sheet_exposed_type(**dict(zip(header, row)))
                 else:
                     for i, row in enumerate(res):
                         res[i] = sheet_exposed_type(*row)
@@ -225,7 +225,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
             excel_file.close()
 
         if len(user_provided_sheet_names) == 1:
-            return work_books[cast(list, user_provided_sheet_names)[0]]
+            return work_books[list(user_provided_sheet_names)[0]]
 
         return work_books
 
