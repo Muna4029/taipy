@@ -14,7 +14,7 @@ import pathlib
 import shutil
 from datetime import datetime
 from os.path import isfile
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, Callable, Dict, Optional
 
 from taipy.common.config import Config
 from taipy.common.logger._taipy_logger import _TaipyLogger
@@ -47,7 +47,8 @@ class _FileDataNodeMixin:
     __logger = _TaipyLogger._get_logger()
 
     def __init__(self, properties: Dict) -> None:
-        self._path: str = cast(str, properties.get(self._PATH_KEY, properties.get(self._DEFAULT_PATH_KEY)))
+        _path_opt: Optional[str] = properties.get(self._PATH_KEY, properties.get(self._DEFAULT_PATH_KEY))
+        self._path: str = _path_opt if _path_opt is not None else ""
         self._is_generated: bool = properties.get(self._IS_GENERATED_KEY, self._path is None)
         self._last_edit_date: Optional[datetime] = None
 
