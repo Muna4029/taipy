@@ -162,6 +162,7 @@ def inject_core_sections() -> t.Callable:
 
     return _inject_core_sections
 
+
 @pytest.fixture
 def inject_rest_sections() -> t.Callable:
     """Fixture to inject core sections into the configuration."""
