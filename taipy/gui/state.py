@@ -226,10 +226,14 @@ class _GuiState(State):
     def broadcast(self, name: str, value: t.Any):
         with self._set_context(self._gui):
             encoded_name = self._gui._bind_var(name)  # type: ignore[attr-defined]
+            if self._gui._get_client_id() is None:
+                raise RuntimeError("Client ID is not set.")
             self._gui._broadcast_all_clients(encoded_name, value)  # type: ignore[attr-defined]
 
     def patch(self, name: str, change: t.Optional[dict] = None, remove: t.Optional[dict] = None):
         with self._set_context(self._gui):
+            if self._gui._get_client_id() is None:
+                raise RuntimeError("Client ID is not set.")
             self._gui._patch_variable(name, change, remove, getattr(self, name, None))  # type: ignore[attr-defined]
 
     def __getattribute__(self, name: str) -> t.Any:
@@ -249,6 +253,8 @@ class _GuiState(State):
         if not name.startswith("__") and name not in super().__getattribute__(_GuiState.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not defined.")
         with self._notebook_context(gui), self._set_context(gui):
+            if gui._get_client_id() is None:
+                raise RuntimeError("Client ID is not set.")
             encoded_name = gui._bind_var(name)  # type: ignore[attr-defined]
             return getattr(gui._bindings(), encoded_name)  # type: ignore[attr-defined]
 
@@ -321,6 +327,8 @@ class _GuiState(State):
 class _AsyncState(_GuiState):
     def __init__(self, state: State) -> None:
         super().__init__(state.get_gui(), [], [])
+        if state.get_gui()._get_client_id() is None:
+            raise RuntimeError("Client ID is not set.")
         self._set_placeholder("__state_id", state.get_gui()._get_client_id())  # type: ignore[attr-defined]
 
     @staticmethod
@@ -332,6 +340,8 @@ class _AsyncState(_GuiState):
         return getattr(state, var_name)
 
     def __setattr__(self, var_name: str, var_value: t.Any) -> None:
+        if self.get_gui()._get_client_id() is None:
+            raise RuntimeError("Client ID is not set.")
         self.get_gui().invoke_callback(
             t.cast(str, self._get_placeholder("__state_id")), _AsyncState.__set_var_in_state, [var_name, var_value]
         )
