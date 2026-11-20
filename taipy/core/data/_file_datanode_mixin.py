@@ -248,5 +248,5 @@ class _FileDataNodeMixin:
             else:
                 shutil.copy(self._path, new_path)
             normalize_path = _normalize_path(new_path)
-            dest._path = normalize_path # type: ignore[attr-defined]
+            dest._path = normalize_path  # type: ignore[attr-defined]
             dest._properties[self._PATH_KEY] = normalize_path
