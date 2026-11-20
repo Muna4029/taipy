@@ -296,7 +296,7 @@ class ExcelDataNode(DataNode, _FileDataNodeMixin, _TabularDataNodeMixin):
     def _append(self, data: Any):
         from importlib.metadata import version
 
-        if version("pandas") < "1.4":
+        if version("pandas") < "1.4.0":
             raise ImportError("The append method is only available for pandas version 1.4 or higher.")
 
         if isinstance(data, Dict) and all(isinstance(x, (pd.DataFrame, np.ndarray)) for x in data.values()):
