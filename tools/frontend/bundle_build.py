@@ -37,12 +37,12 @@ def usage() -> None:
 
 
 def build_gui(root_path: Path):
-    print(f"Building taipy-gui frontend bundle in {root_path}.")  # noqa: T201
+    logger.info(f"Building taipy-gui frontend bundle in {root_path}.")
     already_exists = (root_path / "taipy" / "gui" / "webapp" / "index.html").exists()
     if already_exists:
-        print(f'Found taipy-gui frontend bundle in {root_path  / "taipy" / "gui" / "webapp"}.')  # noqa: T201
+        logger.info(f'Found taipy-gui frontend bundle in {root_path  / "taipy" / "gui" / "webapp"}.')
     else:
-        print(f"Node Env: ${os.environ['NODE_OPTIONS']}")
+        logger.info(f"Node Env: ${os.environ['NODE_OPTIONS']}")
         subprocess.run(["npm", "ci"], cwd=root_path / "frontend" / "taipy-gui" / "dom", check=True, shell=with_shell)
         subprocess.run(["npm", "ci"], cwd=root_path / "frontend" / "taipy-gui", check=True, shell=with_shell)
         subprocess.run(["npm", "run", "build"], cwd=root_path / "frontend" / "taipy-gui", check=True, shell=with_shell)
