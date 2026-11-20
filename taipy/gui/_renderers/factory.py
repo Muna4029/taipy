@@ -141,7 +141,7 @@ class _Factory:
                 ("width", PropertyType.string_or_number),
                 ("height", PropertyType.string_or_number),
                 ("layout", PropertyType.dynamic_dict),
-                ("animation", PropertyType.to_json),
+                ("animation", PropertyType.dynamic_dict),
                 ("plot_config", PropertyType.dict),
                 ("on_range_change", PropertyType.function),
                 ("active", PropertyType.dynamic_boolean, True),

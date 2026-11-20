@@ -55,7 +55,7 @@ def test_chart_builder_1(gui: Gui, helpers, csvdata):
         'onRangeChange="range_change"',
         'updateVars="layout=_TpDi_tpec_TpExPr_subplot_layout_TPMDL_0;selected0=tpec_TpExPr_selected_indices_TPMDL_0;selected1=tpec_TpExPr_selected_indices_TPMDL_0"',
         'updateVarName="_TpD_tpec_TpExPr_csvdata_TPMDL_0"',
-        "data={_TpD_tpec_TpExPr_csvdata_TPMDL_0}",
+        "data={csvdata}",
         'width="100%"',
     ]
     gui._set_frame(inspect.currentframe())
@@ -259,6 +259,7 @@ def test_chart_indexed_properties_with_arrays_builder(gui: Gui, helpers):
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
+
 def test_chart_multi_data(gui: Gui, helpers, csvdata):
     with tgb.Page(frame=None) as page:
         tgb.chart(  # type: ignore[attr-defined]
@@ -279,7 +280,7 @@ def test_chart_multi_data(gui: Gui, helpers, csvdata):
 
 
 def test_chart_none_data(gui: Gui, helpers):
-    data=None  # noqa: F841
+    data = "{csvdata}"  # noqa: F841
     with tgb.Page(frame=None) as page:
         tgb.chart(  # type: ignore[attr-defined]
             data="{data}",

@@ -14,6 +14,11 @@ import typing as t
 
 import pytest
 
+try:
+    import pkg_resources
+except ImportError:
+    raise ImportError("The 'pkg_resources' module is required but not installed. Please install it to run the tests.")
+
 from taipy.common._cli._base_cli._taipy_parser import _TaipyParser
 from taipy.common.config import Config, _inject_section
 from taipy.common.config._config import _Config

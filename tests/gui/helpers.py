@@ -96,7 +96,9 @@ class Helpers:
         gui.run(run_server=False, single_client=True, stylekit=False)
         client = gui._server.test_client()
         response = client.get(f"/{Gui._JSX_URL}/test")
-        assert response.status_code == 200, f"response.status_code {response.status_code} != 200"
+        assert (
+            response.status_code == 200
+        ), f"response.status_code {response.status_code} != 200, which indicates a failure in the rendering process as noted in the CI error context."
         response_data = Helpers.get_response_data(response, gui)
         assert isinstance(response_data, t.Dict), "response_data is not Dict"
         assert "jsx" in response_data, "jsx not in response_data"
