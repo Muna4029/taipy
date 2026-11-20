@@ -33,6 +33,11 @@ from .utils import (
     _TaipyToJson,
 )
 
+try:
+    import pkg_resources
+except ImportError:
+    raise ImportError("The 'pkg_resources' module is missing. Please install 'setuptools'.")
+
 
 class _WsType(Enum):
     ACTION = "A"
