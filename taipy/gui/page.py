@@ -60,11 +60,7 @@ class Page:
             # Extract the page module's attributes and methods
             cls = type(self)
             cls_locals = dict(vars(self))
-            functions = [
-                i[0]
-                for i in inspect.getmembers(cls)
-                if not i[0].startswith("_") and inspect.isroutine(i[1])
-            ]
+            functions = [i[0] for i in inspect.getmembers(cls) if not i[0].startswith("_") and inspect.isroutine(i[1])]
             for f in functions:
                 func = getattr(self, f)
                 if hasattr(func, "__func__") and func.__func__ is not None:
