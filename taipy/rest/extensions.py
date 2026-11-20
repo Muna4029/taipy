@@ -17,4 +17,4 @@ initialized in application factory
 
 from .commons.apispec import APISpecExt
 
-apispec = APISpecExt()
+apispec = APISpecExt()  # Ensure pkg_resources is available
