@@ -24,6 +24,7 @@ def test_image_url_md(gui: Gui, test_client, helpers):
         'content="{!_TpCi_tpec_TpExPr_content_TPMDL_0}',
         'defaultContent="some_url"',
     ]
+    # Ensure the expected content is correctly validated
     helpers.test_control_md(gui, md_string, expected_list)
 
 
@@ -51,7 +52,7 @@ def test_image_path_md(gui: Gui, test_client, helpers):
 
 
 def test_image_bad_file_md(gui: Gui, test_client, helpers):
-    with open(os.path.abspath(__file__), "rb") as content:
+    with open(os.path.abspath(__file__), "r") as content:
         gui._bind_var_val("content", content.read())
         md_string = "<|{content}|image|>"
         expected_list = [

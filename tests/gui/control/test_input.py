@@ -17,7 +17,7 @@ from taipy.gui import Gui
 def test_input_md(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{x}|input|>"
+    md_string = f"<|{x}|input|>"
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',
@@ -31,7 +31,7 @@ def test_input_md(gui: Gui, helpers):
 def test_input_md_width(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{x}|input|width=70%|>"
+    md_string = f"<|{x}|input|width=70%|>"
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',
@@ -46,7 +46,7 @@ def test_input_md_width(gui: Gui, helpers):
 def test_password_md(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{x}|input|password|>"
+    md_string = f"<|{x}|input|password|>"
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',
@@ -60,7 +60,7 @@ def test_password_md(gui: Gui, helpers):
 def test_input_html_1(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = '<taipy:input value="{x}" />'
+    html_string = f'<taipy:input value="{x}" />'
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',
@@ -74,7 +74,7 @@ def test_input_html_1(gui: Gui, helpers):
 def test_password_html(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = '<taipy:input value="{x}" password="True" width="{100}" />'
+    html_string = f'<taipy:input value="{x}" password="True" width="{100}" />'
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',
@@ -89,7 +89,7 @@ def test_password_html(gui: Gui, helpers):
 def test_input_html_2(gui: Gui, helpers):
     x = "Hello World!"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = "<taipy:input>{x}</taipy:input>"
+    html_string = f"<taipy:input>{x}</taipy:input>"
     expected_list = [
         "<Input",
         'updateVarName="tpec_TpExPr_x_TPMDL_0"',

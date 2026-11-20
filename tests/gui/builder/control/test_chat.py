@@ -30,7 +30,7 @@ def test_chat_builder_1(gui: Gui, test_client, helpers):
     )
 
     with tgb.Page(frame=None) as page:
-        tgb.chat(messages="{messages}", properties="{chat_properties}")  # type: ignore[attr-defined]
+        tgb.chat(messages="{messages}", properties="{chat_properties}", users="{users}")  # type: ignore[attr-defined]
     expected_list = [
         "<Chat",
         'defaultUsers="[[&quot;Fred&quot;, &#x7B;&quot;path&quot;: &quot;/images/favicon.png&quot;, &quot;text&quot;: &quot;Fred.png&quot;&#x7D;], [&quot;Fredi&quot;, &#x7B;&quot;path&quot;: &quot;/images/fred.png&quot;, &quot;text&quot;: &quot;Fred.png&quot;&#x7D;]]"',  # noqa: E501
@@ -56,7 +56,7 @@ def test_chat_builder_2(gui: Gui, test_client, helpers):
     )
 
     with tgb.Page(frame=None) as page:
-        tgb.chat(messages="{messages}", users="{users}")  # type: ignore[attr-defined]
+        tgb.chat(messages="{messages}", properties="{chat_properties}", users="{users}")  # type: ignore[attr-defined]
     expected_list = [
         "<Chat",
         'defaultUsers="[[&quot;Fred&quot;, &#x7B;&quot;path&quot;: &quot;/images/favicon.png&quot;, &quot;text&quot;: &quot;Fred.png&quot;&#x7D;], [&quot;Fredi&quot;, &#x7B;&quot;path&quot;: &quot;/images/fred.png&quot;, &quot;text&quot;: &quot;Fred.png&quot;&#x7D;]]"',  # noqa: E501

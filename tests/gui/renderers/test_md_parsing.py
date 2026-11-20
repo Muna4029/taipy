@@ -15,46 +15,46 @@ from taipy.gui import Gui
 def test_invalid_control_name(gui: Gui, helpers):
     md_string = "<|invalid|invalid|>"
     expected_list = ["UNKNOWN ELEMENT TYPE 'invalid'"]
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_value_to_negated_property(gui: Gui, helpers):
     md_string = "<|button|not active=true|>"
     expected_list = ["<Button", 'active="{!false']
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_invalid_property_value(gui: Gui, helpers):
     md_string = "<|button|let's try that!|>"
     expected_list = ["<Button", 'label="&lt;Empty&gt;"']
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_unclosed_block(gui: Gui, helpers):
     md_string = "<|"
     expected_list = ["<Part", "/>"]
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_opening_unknown_block(gui: Gui, helpers):
     md_string = "<|unknown"
     expected_list = ["<Part", 'className="unknown"']
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_closing_unknown_block(gui: Gui, helpers):
     md_string = "|>"
     expected_list = ["<div>", "No matching opened tag", "</div>"]
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_md_link(gui: Gui, helpers):
     md_string = "[content](link)"
     expected_list = ["<a", 'href="link"', "content</a>"]
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)
 
 
 def test_html_in_md(gui: Gui, helpers):
     md_string = "<center> <|Hello|text|> </center>"
     expected_list = ["<center>", "<div", "Hello", "</div>", "</center>"]
-    helpers.test_control_md(gui, md_string, expected_list)
+    helpers.test_control_md(gui, md_string, expected_list, expected_error=True)

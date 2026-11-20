@@ -40,9 +40,9 @@ def test_pane_persistent_md(gui: Gui, test_client, helpers):
     expected_list = [
         "<Pane",
         'anchor="left"',
-        'persistent="{!true',
+        'persistent="{!true}"',
         'updateVarName="_TpB_tpec_TpExPr_show_pane_TPMDL_0"',
-        'open="{!_TpB_tpec_TpExPr_show_pane_TPMDL_0',
+        'open="{!_TpB_tpec_TpExPr_show_pane_TPMDL_0}"',
         "<h1",
         "This is a Pane</h1></Pane>",
     ]
@@ -55,6 +55,7 @@ def test_pane_html(gui: Gui, test_client, helpers):
     expected_list = [
         "<Pane",
         'anchor="left"',
+        'open="{!_TpB_tpec_TpExPr_show_pane_TPMDL_0}"',
         'updateVarName="_TpB_tpec_TpExPr_show_pane_TPMDL_0"',
         'open="{!_TpB_tpec_TpExPr_show_pane_TPMDL_0',
         "<h1",

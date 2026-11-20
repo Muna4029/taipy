@@ -29,6 +29,14 @@ def test_number_builder_2(gui: Gui, test_client, helpers):
         'updateVarName="_TpN_tpec_TpExPr_x_TPMDL_0"',
         'defaultValue="10"',
         'type="number"',
+    gui._bind_var_val("x", "10")
+    with tgb.Page(frame=None) as page:
+        tgb.number(value="{x}")  # type: ignore[attr-defined]
+    expected_list = [
+        "<Input",
+        'updateVarName="_TpN_tpec_TpExPr_x_TPMDL_0"',
+        'defaultValue="10"',
+        'type="number"',
         'value="{!_TpN_tpec_TpExPr_x_TPMDL_0',
     ]
     helpers.test_control_builder(gui, page, expected_list)

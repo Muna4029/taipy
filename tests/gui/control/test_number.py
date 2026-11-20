@@ -19,14 +19,14 @@ def test_number_md_1(gui: Gui, helpers):
 
 
 def test_number_md_2(gui: Gui, test_client, helpers):
-    gui._bind_var_val("x", "10")
+    gui._bind_var_val("x", 10)
     md_string = "<|{x}|number|>"
     expected_list = [
         "<Input",
         'updateVarName="_TpN_tpec_TpExPr_x_TPMDL_0"',
         'defaultValue="10"',
         'type="number"',
-        'value="{!_TpN_tpec_TpExPr_x_TPMDL_0',
+        'value="{!_TpN_tpec_TpExPr_x_TPMDL_0}"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -45,7 +45,7 @@ def test_number_html_1(gui: Gui, test_client, helpers):
         'updateVarName="_TpN_tpec_TpExPr_x_TPMDL_0"',
         'defaultValue="10"',
         'type="number"',
-        'value="{!_TpN_tpec_TpExPr_x_TPMDL_0',
+        'value="{!_TpN_tpec_TpExPr_x_TPMDL_0}"',
     ]
     helpers.test_control_html(gui, html_string, expected_list)
 

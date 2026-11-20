@@ -19,14 +19,14 @@ from taipy.gui import Gui
 def test_expression_text_control_str(gui: Gui, test_client, helpers):
     gui._bind_var_val("x", "Hello World!")
     md_string = "<|{x}|>"
-    expected_list = ["<Field", 'dataType="str"', 'defaultValue="Hello World!"', 'value="{!tpec_TpExPr_x_TPMDL_0']
+    expected_list = ["<Field", 'dataType="str"', 'defaultValue="Hello World!"', 'value="{!tpec_TpExPr_x_TPMDL_0}"']
     helpers.test_control_md(gui, md_string, expected_list)
 
 
 def test_expression_text_control_int(gui: Gui, test_client, helpers):
     gui._bind_var_val("x", 10)
     md_string = "<|{x}|>"
-    expected_list = ["<Field", 'dataType="int"', 'defaultValue="10"', 'value="{!tpec_TpExPr_x_TPMDL_0']
+    expected_list = ["<Field", 'dataType="int"', 'defaultValue="10"', 'value="{!tpec_TpExPr_x_TPMDL_0}"']
     helpers.test_control_md(gui, md_string, expected_list)
 
 
@@ -39,7 +39,7 @@ def test_expression_text_control_1(gui: Gui, test_client, helpers):
         "<Field",
         'dataType="int"',
         'defaultValue="30"',
-        'value="{!tp_TpExPr_x_y_TPMDL_0_0',
+        'value="{!tp_TpExPr_x_y_TPMDL_0_0}"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -53,7 +53,7 @@ def test_expression_text_control_2(gui: Gui, test_client, helpers):
         "<Field",
         'dataType="str"',
         'defaultValue="x + y = 30"',
-        'value="{!tp_TpExPr_x_y_x_y_TPMDL_0_0',
+        'value="{!tp_TpExPr_x_y_x_y_TPMDL_0_0}"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -67,7 +67,7 @@ def test_expression_text_control_3(gui: Gui, test_client, helpers):
         "<Field",
         'dataType="str"',
         'defaultValue="Hello Mickey Mouse and Donald Duck"',
-        'value="{!tp_TpExPr_Hello_x_and_y_TPMDL_0_0',
+        'value="{!tp_TpExPr_Hello_x_and_y_TPMDL_0_0}"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -80,7 +80,7 @@ def test_expression_text_gt_operator(gui: Gui, test_client, helpers):
         "<Field",
         'dataType="bool"',
         'defaultValue="false"',
-        'value="{!tp_TpExPr_x_0_TPMDL_0_0',
+        'value="{!tp_TpExPr_x_0_TPMDL_0_0}"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 

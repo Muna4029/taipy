@@ -21,9 +21,9 @@ def test_date_builder_1(gui: Gui, test_client, helpers):
         tgb.date(id="date", date="{date}")  # type: ignore[attr-defined]
     expected_list = [
         "<DateSelector",
-        'defaultDate="2020-12-',
+        'defaultDate="2020-12-15"',
         'updateVarName="_TpDt_tpec_TpExPr_date_TPMDL_0"',
-        'date="{!_TpDt_tpec_TpExPr_date_TPMDL_0',
+        'date="{!_TpDt_tpec_TpExPr_date_TPMDL_0"',
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
@@ -34,9 +34,9 @@ def test_date_builder_2(gui: Gui, test_client, helpers):
         tgb.date(id="date", date="{date}", with_time=True)  # type: ignore[attr-defined]
     expected_list = [
         "<DateSelector",
-        'defaultDate="2020-12-',
+        'defaultDate="2020-12-15"',
         'updateVarName="_TpDt_tpec_TpExPr_date_TPMDL_0"',
-        'date="{!_TpDt_tpec_TpExPr_date_TPMDL_0',
+        'date="{!_TpDt_tpec_TpExPr_date_TPMDL_0"',
         'withTime="{!true',
     ]
     helpers.test_control_builder(gui, page, expected_list)

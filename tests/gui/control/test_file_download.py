@@ -37,7 +37,7 @@ def test_file_download_file_md(gui: Gui, test_client, helpers):
         ]
         if not util.find_spec("magic"):
             expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
-        helpers.test_control_md(gui, md_string, expected_list)
+        assert helpers.test_control_md(gui, md_string, expected_list) == expected_list
 
 
 def test_file_download_path_md(gui: Gui, test_client, helpers):
@@ -81,7 +81,7 @@ def test_file_download_any_file_md(gui: Gui, test_client, helpers):
         ]
         if not util.find_spec("magic"):
             expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
-        helpers.test_control_md(gui, md_string, expected_list)
+        assert helpers.test_control_md(gui, md_string, expected_list) == expected_list
 
 
 def test_file_download_url_width_md(gui: Gui, test_client, helpers):

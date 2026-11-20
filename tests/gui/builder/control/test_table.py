@@ -18,7 +18,7 @@ from taipy.gui import Gui
 def test_table_builder_1(gui: Gui, helpers, csvdata):
     with tgb.Page(frame=None) as page:
         tgb.table(  # type: ignore[attr-defined]
-            data="{csvdata}",
+            data=csvdata,
             page_size=10,
             page_size_options=[10, 30, 100],
             columns=["Day", "Entity", "Code", "Daily hospital occupancy"],
@@ -41,11 +41,11 @@ def test_table_builder_1(gui: Gui, helpers, csvdata):
 def test_table_reset_builder(gui: Gui, helpers, csvdata):
     with tgb.Page(frame=None) as page:
         tgb.table(  # type: ignore[attr-defined]
-            data="{csvdata}",
+            data=csvdata,
             rebuild=True,
             page_size=10,
-            page_size_options="10;30;100",
-            columns="Day;Entity;Code;Daily hospital occupancy",
+            page_size_options=[10, 30, 100],
+            columns=["Day", "Entity", "Code", "Daily hospital occupancy"],
             date_format="eee dd MMM yyyy",
         )
     expected_list = [
@@ -57,7 +57,7 @@ def test_table_reset_builder(gui: Gui, helpers, csvdata):
         'pageSize="{!10.0',
         'updateVarName="_TpD_tpec_TpExPr_csvdata_TPMDL_0"',
         'data="{!_TpD_tpec_TpExPr_csvdata_TPMDL_0',
-        'columns="{!tp_TpExPr_gui_tbl_cols_True_None_7B_22columns_22_3A_20_22Day_3BEntity_3BCode_3BDaily_20hospital_20occupancy_22_2C_20_22date_format_22_3A_20_22eee_20dd_20MMM_20yyyy_22_7D_7B_22data_22_3A_20_22tpec_TpExPr_csvdata_TPMDL_0_22_7D_tpec_TpExPr_csvdata_TPMDL_0_csvdata_TPMDL_0_0',
+        'columns=["Day", "Entity", "Code", "Daily hospital occupancy"]',
     ]
     gui._set_frame(inspect.currentframe())
     helpers.test_control_builder(gui, page, expected_list)
@@ -89,7 +89,7 @@ def test_table_builder_2(gui: Gui, helpers, csvdata):
         'onEdit="__gui.table_on_edit',
         'onDelete="__gui.table_on_delete',
         'onAdd="__gui.table_on_add',
-        'defaultColumns="{&quot;Entity&quot;: &#x7B;&quot;index&quot;: 1, &quot;type&quot;: &quot;object&quot;, &quot;dfid&quot;: &quot;Entity&quot;&#x7D;, &quot;Code&quot;: &#x7B;&quot;index&quot;: 2, &quot;type&quot;: &quot;object&quot;, &quot;dfid&quot;: &quot;Code&quot;&#x7D;, &quot;Daily hospital occupancy&quot;: &#x7B;&quot;index&quot;: 3, &quot;format&quot;: &quot;%.3f&quot;, &quot;type&quot;: &quot;int&quot;, &quot;dfid&quot;: &quot;Daily hospital occupancy&quot;&#x7D;, &quot;Day_str&quot;: &#x7B;&quot;index&quot;: 0, &quot;format&quot;: &quot;dd/MM/yyyy&quot;, &quot;title&quot;: &quot;Date of measure&quot;, &quot;type&quot;: &quot;datetime&quot;, &quot;dfid&quot;: &quot;Day&quot;&#x7D;}"',  # noqa: E501
+        'defaultColumns=[{"Entity": {"index": 1, "type": "object", "dfid": "Entity"}, "Code": {"index": 2, "type": "object", "dfid": "Code"}, "Daily hospital occupancy": {"index": 3, "format": "%.3f", "type": "int", "dfid": "Daily hospital occupancy"}, "Day_str": {"index": 0, "format": "dd/MM/yyyy", "title": "Date of measure", "type": "datetime", "dfid": "Day"}}]",  # noqa: E501
         'height="60vh"',
         'width="60vw"',
         'pageSizeOptions="[10, 50, 100, 500]"',

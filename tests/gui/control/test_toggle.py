@@ -39,10 +39,10 @@ def test_toggle_lov_md(gui: Gui, test_client, helpers):
         'defaultLov="[[&quot;l1&quot;, &quot;v1&quot;], [&quot;l2&quot;, &quot;v2&quot;]]"',
         'defaultValue="l1"',
         'label="Label"',
-        'lov="{!_TpL_tp_TpExPr_gui_get_adapted_lov_lov_tuple_TPMDL_0_0',
+        'lov="{!_TpL_tp_TpExPr_gui_get_adapted_lov_lov_tuple_TPMDL_0_0"',
         'updateVars="lov=_TpL_tp_TpExPr_gui_get_adapted_lov_lov_tuple_TPMDL_0_0"',
         'updateVarName="_TpLv_tpec_TpExPr_x_TPMDL_0"',
-        'value="{!_TpLv_tpec_TpExPr_x_TPMDL_0',
+        'value="{!_TpLv_tpec_TpExPr_x_TPMDL_0"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -75,11 +75,11 @@ def test_toggle_switch_md(gui: Gui, test_client, helpers):
     md_string = "<|{x}|toggle|label=Label|>"
     expected_list = [
         "<Toggle",
-        'isSwitch="{!true',
-        'defaultValue="{!true',
+        'isSwitch="{!true"',
+        'defaultValue="{!true"',
         'libClassName="taipy-toggle"',
         'updateVarName="_TpB_tpec_TpExPr_x_TPMDL_0"',
-        'value="{!_TpB_tpec_TpExPr_x_TPMDL_0',
+        'value="{!_TpB_tpec_TpExPr_x_TPMDL_0"',
         'label="Label"',
     ]
     helpers.test_control_md(gui, md_string, expected_list)

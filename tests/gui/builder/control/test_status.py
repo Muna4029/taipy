@@ -18,10 +18,10 @@ from taipy.gui import Gui
 def test_status_builder(gui: Gui, helpers):
     status = [{"status": "info", "message": "Info Message"}]  # noqa: F841
     with tgb.Page(frame=None) as page:
-        tgb.status(value="{status}")  # type: ignore[attr-defined]
+        tgb.status(value=status)  # type: ignore[attr-defined]
     expected_list = [
         "<Status",
-        'defaultValue="[&#x7B;&quot;status&quot;: &quot;info&quot;, &quot;message&quot;: &quot;Info Message&quot;&#x7D;]"',  # noqa: E501
+        'defaultValue="[{"status": "info", "message": "Info Message"}]"',  # noqa: E501
         'value="{!tpec_TpExPr_status_TPMDL_0',
     ]
     gui._set_frame(inspect.currentframe())
