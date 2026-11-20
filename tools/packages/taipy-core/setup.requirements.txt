@@ -7,3 +7,5 @@ pymongo[srv]>=4.2.0,<=4.13.0
 sqlalchemy>=2.0.16,<=2.0.41
 taipy-common
 toml>=0.10,<=0.10.2
+taipy.gui.servers.fastapi
+pkg_resources
