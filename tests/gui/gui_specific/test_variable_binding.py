@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 
-from taipy.gui import Gui, Markdown
+from taipy.gui import Markdown
 
 
 def test_variable_binding(helpers, gui_server):
@@ -32,9 +32,9 @@ def test_variable_binding(helpers, gui_server):
     jsx = helpers.get_response_data(response, gui)["jsx"]
     for expected in ["<Button", 'defaultLabel="button label"', "label={tpec_TpExPr_z_TPMDL_0}"]:
         assert expected in jsx
-    assert gui._bindings().x == x # type: ignore[reportAttributeAccessIssue]
-    assert gui._bindings().y == y # type: ignore[reportAttributeAccessIssue]
-    assert gui._bindings().z == z # type: ignore[reportAttributeAccessIssue]
+    assert gui._bindings().x == x  # type: ignore[reportAttributeAccessIssue]
+    assert gui._bindings().y == y  # type: ignore[reportAttributeAccessIssue]
+    assert gui._bindings().z == z  # type: ignore[reportAttributeAccessIssue]
     with gui.get_app_context():
         assert callable(gui._get_user_function("another_function"))
     helpers.test_cleanup()

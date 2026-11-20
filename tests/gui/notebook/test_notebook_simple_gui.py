@@ -45,8 +45,8 @@ def test_notebook_simple_gui(tb, helpers):
     tb.execute_cell("gui_run")
     while not helpers.port_check():
         time.sleep(0.1)
-    assert wait_for_content(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1", ">Hello</h1>"), "Expected content not found"
-    assert 'defaultValue=\\"10\\"' in urlopen(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1").read().decode("utf-8")
+    assert wait_for_content(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1", ">Hello</h1>"), "Expected content not found"
+    assert 'defaultValue=\\"10\\"' in urlopen(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1").read().decode("utf-8")
     # Test state manipulation within notebook
     tb.execute_cell("get_variable")
     assert "10" in tb.cell_output_text("get_variable")
@@ -58,12 +58,12 @@ def test_notebook_simple_gui(tb, helpers):
     # Test page reload
     tb.execute_cell("gui_stop")
     with pytest.raises(Exception) as exc_info:
-        urlopen(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1")
+        urlopen(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1")
     assert "501: Gateway error" in str(exc_info.value)
     tb.execute_cell("gui_re_run")
     while True:
         with contextlib.suppress(Exception):
-            urlopen(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1")
+            urlopen(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1")
             break
     assert wait_for_content(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1", ">Hello</h1>"), "Expected content not found"
     tb.execute_cell("gui_reload")
@@ -71,10 +71,10 @@ def test_notebook_simple_gui(tb, helpers):
         with contextlib.suppress(Exception):
             urlopen(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1")
             break
-    assert wait_for_content(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1", ">Hello</h1>"), "Expected content not found"
+    assert wait_for_content(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1", ">Hello</h1>"), "Expected content not found"
     tb.execute_cell("gui_re_stop")
     with pytest.raises(Exception) as exc_info:
-        urlopen(f"http://127.0.0.1:5000/{Gui._JSX_URL}/page1")
+        urlopen(f"http://127.0.0.1:5000/{gui._JSX_URL}/page1")
     assert "501: Gateway error" in str(exc_info.value)
 
 
