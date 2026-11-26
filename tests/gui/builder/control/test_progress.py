@@ -15,7 +15,7 @@ from taipy.gui import Gui
 
 def test_progress_builder(gui: Gui, helpers):
     with tgb.Page(frame=None) as page:
-        tgb.progress(linear="true", show_value="true", value=50)  # type: ignore[attr-defined]
+        tgb.progress(linear=True, show_value=True, value=50)
     expected_list = ["<Progress",
                      'linear="{!true',
                      'showValue="{!true',

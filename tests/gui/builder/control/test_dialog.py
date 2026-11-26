@@ -44,11 +44,11 @@ def test_dialog_builder_2(gui: Gui, helpers):
         )
     expected_list = [
         "<Dialog",
-        'page="TaiPy_partials',
+        'partial="TaiPy_partials',
         'title="Another Dialog"',
         'onAction="validate_action"',
         'updateVarName="_TpB_tpec_TpExPr_dialog_open_TPMDL_0"',
-        'open="{!_TpB_tpec_TpExPr_dialog_open_TPMDL_0',
+        'open="{!_TpB_tpec_TpExPr_dialog_open_TPMDL_0}"',
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
@@ -76,6 +76,7 @@ def test_dialog_labels_builder(gui: Gui, helpers):
     helpers.test_control_builder(gui, page, expected_list)
 
 def test_dialog_builder_block(gui: Gui, helpers):
+    gui._set_frame(inspect.currentframe())
     with tgb.dialog(title="Another Dialog") as content:  # type: ignore[attr-defined]
         tgb.text(value="This is in a dialog")  # type: ignore[attr-defined]
     expected_list = [

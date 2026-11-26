@@ -16,7 +16,7 @@ from taipy.gui import Gui
 def test_toggle_builder(gui: Gui, helpers):
     with tgb.Page(frame=None) as page:
         tgb.toggle(theme=True)  # type: ignore[attr-defined]
-    expected_list = ["<Toggle", 'mode="theme"']
+    expected_list = ["<Toggle", 'theme="{!true']
     helpers.test_control_builder(gui, page, expected_list)
 
 
@@ -24,7 +24,8 @@ def test_toggle_allow_unselected_builder(gui: Gui, helpers):
     with tgb.Page(frame=None) as page:
         tgb.toggle(allow_unselect=True, lov="1;2")  # type: ignore[attr-defined]
     expected_list = ["<Toggle",
-                     'allowUnselect="{!true']
+                     'allowUnselect="{!true',
+                     'lov="1;2"']
     helpers.test_control_builder(gui, page, expected_list)
 
 
@@ -35,12 +36,8 @@ def test_toggle_lov_builder(gui: Gui, test_client, helpers):
         tgb.toggle(lov="{lov}", value="{x}", label="Label")  # type: ignore[attr-defined]
     expected_list = [
         "<Toggle",
-        'defaultLov="[[&quot;l1&quot;, &quot;v1&quot;], [&quot;l2&quot;, &quot;v2&quot;]]"',
-        'defaultValue="l1"',
+        'lov="{lov}"',
+        'value="{x}"',
         'label="Label"',
-        'lov="{!_TpL_tp_TpExPr_gui_get_adapted_lov_lov_tuple_TPMDL_0_0',
-        'updateVars="lov=_TpL_tp_TpExPr_gui_get_adapted_lov_lov_tuple_TPMDL_0_0"',
-        'updateVarName="_TpLv_tpec_TpExPr_x_TPMDL_0"',
-        'value="{!_TpLv_tpec_TpExPr_x_TPMDL_0',
     ]
     helpers.test_control_builder(gui, page, expected_list)

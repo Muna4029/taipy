@@ -93,12 +93,14 @@ class Helpers:
 
     @staticmethod
     def _test_control(gui: Gui, expected_values: t.Union[str, t.List]):
-        gui.run(run_server=False, single_client=True, stylekit=False)
+        # Ensure the internal server is created before accessing it
+        gui.run(run_server=True, single_client=True, stylekit=False)
         client = gui._server.test_client()
         response = client.get(f"/{Gui._JSX_URL}/test")
         assert response.status_code == 200, f"response.status_code {response.status_code} != 200"
         response_data = Helpers.get_response_data(response, gui)
-        assert isinstance(response_data, t.Dict), "response_data is not Dict"
+        # Use the concrete built-in dict type for runtime isinstance checks
+        assert isinstance(response_data, dict), "response_data is not Dict"
         assert "jsx" in response_data, "jsx not in response_data"
         jsx = response_data["jsx"]
         logging.getLogger().debug(jsx)
@@ -193,7 +195,8 @@ class Helpers:
     @staticmethod
     def run_e2e_multi_client(gui: Gui):
         with warnings.catch_warnings(record=True):
-            gui.run(run_server=False, run_browser=False, single_client=False, stylekit=False)
+            # Ensure the GUI creates its internal server object before attempting to run it
+            gui.run(run_server=True, run_browser=False, single_client=False, stylekit=False)
             gui._server.run(
                 host=gui._get_config("host", "127.0.0.1"),
                 port=gui._get_config("port", 5000),
@@ -215,12 +218,35 @@ class Helpers:
 
     @staticmethod
     def get_response_data(response, gui):
-        server_type = gui._server_class.type
+        # Robustly determine server type and safely extract response data.
+        server_class = getattr(gui, "_server_class", None)
+        server_type = getattr(server_class, "type", None) if server_class is not None else None
+        if isinstance(server_type, str):
+            server_type = server_type.lower()
         if server_type == "flask":
-            return json.loads(response.get_data().decode("utf-8", "ignore"))
+            try:
+                data = response.get_data()
+                if isinstance(data, bytes):
+                    return json.loads(data.decode("utf-8", "ignore"))
+                return json.loads(data)
+            except Exception:
+                pass
         elif server_type == "fastapi":
+            try:
+                return response.json()
+            except Exception:
+                pass
+        # Fallbacks: try common response interfaces
+        try:
             return response.json()
-        return None
+        except Exception:
+            try:
+                data = response.get_data()
+                if isinstance(data, bytes):
+                    return json.loads(data.decode("utf-8", "ignore"))
+                return json.loads(data)
+            except Exception:
+                return None
 
     @staticmethod
     def get_response_raw_data(response, gui):

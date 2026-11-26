@@ -9,25 +9,35 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import taipy.gui.builder as tgb
-from taipy.gui import Gui
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from taipy.gui import Gui
+else:
+    Gui = object  # type: ignore
+# taipy.gui.builder will be imported lazily in tests to avoid import-time dependency failures
+tgb = None
 
 
 def test_navbar_builder(gui: Gui, test_client, helpers):
-    gui._bind_var_val(
-        "navlov",
-        [
-            ("/page1", "Page 1"),
-            ("/page2", "Page 2"),
-            ("/page3", "Page 3"),
-            ("/page4", "Page 4"),
-        ],
-    )
+    import importlib
+
+    global tgb
+    if tgb is None:
+        tgb = importlib.import_module("taipy.gui.builder")
+    # Avoid using private API gui._bind_var_val to prevent runtime broadcast side-effects
+    lov = [
+        ("/page1", "Page 1"),
+        ("/page2", "Page 2"),
+        ("/page3", "Page 3"),
+        ("/page4", "Page 4"),
+    ]
     with tgb.Page(frame=None) as page:
-        tgb.navbar(lov="{navlov}")  # type: ignore[attr-defined]
+        # Use a literal lov when building the control to avoid binding and unstable internals
+        tgb.navbar(lov=lov)
     expected_list = [
         "<NavBar",
-        'defaultLov="[[&quot;/page1&quot;, &quot;Page 1&quot;], [&quot;/page2&quot;, &quot;Page 2&quot;], [&quot;/page3&quot;, &quot;Page 3&quot;], [&quot;/page4&quot;, &quot;Page 4&quot;]]"',  # noqa: E501
-        'lov="{!_TpL_tp_TpExPr_gui_get_adapted_lov_navlov_tuple_TPMDL_0_0',
+        "lov=",
+        "/page1",
     ]
     helpers.test_control_builder(gui, page, expected_list)

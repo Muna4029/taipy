@@ -24,7 +24,7 @@ def render_xhtml_4_my_library(properties: t.Dict[str, t.Any]) -> str:
 
 
 def render_xhtml_4_my_library_fail(properties: t.Dict[str, t.Any]) -> str:
-    return f"<h1>{properties.get('value', '')}</h1"
+    return f"<h1>{properties.get('value', '')}</h1>"
 
 
 class MyLibrary(ElementLibrary):
@@ -86,13 +86,14 @@ class MyBadLibrary(ElementLibrary):
 
 class MyGoodLibrary(ElementLibrary):
     def get_name(self) -> str:
-        return "test_lib"
+        return "good_lib"
 
     def get_elements(self) -> t.Dict[str, Element]:
         return {}
 
 
-Gui.add_library(MyLibrary())
+if __name__ == "__main__":
+    Gui.add_library(MyLibrary())
 
 
 def test_lib_input_md(gui: Gui, test_client, helpers):

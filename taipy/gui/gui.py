@@ -1226,7 +1226,15 @@ class Gui:
                     debug_warnings: t.List[warnings.WarningMessage] = []
                     with warnings.catch_warnings(record=True) as warns:
                         warnings.resetwarnings()
-                        json.dumps(newvalue, cls=_TaipyJsonEncoder)
+                        # Ensure we handle objects that may raise during JSON resolution
+                        try:
+                            json.dumps(newvalue, cls=_TaipyJsonEncoder)
+                        except (TypeError, ValueError):
+                            # do not send data that is not serializable
+                            continue
+                        except Exception:
+                            # Any unexpected exception while trying to resolve JSON: don't send value
+                            continue
                         if len(warns):
                             keep_value = True
                             for w in warns:
@@ -1754,7 +1762,8 @@ class Gui:
         """
         # Iterate over all the scopes
         res = {}
-        for id in [id for id in self.__bindings._get_all_scopes() if id != _DataScopes._GLOBAL_ID]:
+        # _bindings is exposed as a method; use it to access the bindings mapping
+        for id in [id for id in self._bindings()._get_all_scopes() if id != _DataScopes._GLOBAL_ID]:
             ret = self.invoke_callback(id, callback, args, module_context)
             res[id] = ret
         return res
@@ -2020,12 +2029,27 @@ class Gui:
                 module_name = re_match.group(1)
                 module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
                 try:
+                    # First try to import as a package/module if possible
                     module = importlib.import_module(module_path)
+                except Exception:
+                    # Fallback: load module directly from file path for non-package folders
+                    try:
+                        file_path = os.path.join(folder_path, f"{module_name}.py")
+                        spec = importlib.util.spec_from_file_location(module_path, file_path)
+                        if spec and spec.loader:
+                            module = importlib.util.module_from_spec(spec)
+                            spec.loader.exec_module(module)  # type: ignore[attr-defined]
+                        else:
+                            raise ImportError(f"Cannot load module '{module_path}' from '{file_path}'")
+                    except Exception as e:
+                        _warn(f"Error while importing module '{module_path}'", e)
+                        continue
+                try:
                     page_instance = _get_page_from_module(module)
                     if page_instance is not None:
                         self.add_page(name=f"{folder_name}/{module_name}", page=page_instance)
                 except Exception as e:
-                    _warn(f"Error while importing module '{module_path}'", e)
+                    _warn(f"Error while processing module '{module_path}'", e)
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
@@ -2328,7 +2352,8 @@ class Gui:
             encoded_var_name = self.__var_dir.add_var(var_name, self._get_locals_context(), var_name)
         else:
             encoded_var_name = self.__var_dir.add_var(var_name, bind_context)
-        if not hasattr(self._bindings(), encoded_var_name):
+        # _bindings() returns a mapping-like object; use key membership instead of hasattr
+        if encoded_var_name not in self._bindings():
             bind_locals = self._get_locals_bind_from_context(bind_context)
             if var_name in bind_locals.keys():
                 self._bind(encoded_var_name, bind_locals[var_name])
@@ -2343,7 +2368,8 @@ class Gui:
     def _bind_var_val(self, var_name: str, value: t.Any) -> bool:
         if not _is_moduled_variable(var_name):
             var_name = self.__var_dir.add_var(var_name, self._get_locals_context())
-        if not hasattr(self._bindings(), var_name):
+        # Use mapping membership check instead of hasattr
+        if var_name not in self._bindings():
             self._bind(var_name, value)
             return True
         return False
@@ -2829,15 +2855,16 @@ class Gui:
             self._config.pages.append(new_page)
             self._config.routes.append(Gui.__root_page_name)
 
+        # Use instance attribute self.__extensions to include extensions registered on the instance
         scripts = [
             s if bool(urlparse(s).netloc) else f"{Gui._EXTENSION_ROOT}/{name}/{s}{lib.get_query(s)}"
-            for name, libs in Gui.__extensions.items()
+            for name, libs in self.__extensions.items()
             for lib in libs
             for s in (lib._do_get_relative_paths(lib.get_scripts()))
         ]
         styles = [
             s if bool(urlparse(s).netloc) else f"{Gui._EXTENSION_ROOT}/{name}/{s}{lib.get_query(s)}"
-            for name, libs in Gui.__extensions.items()
+            for name, libs in self.__extensions.items()
             for lib in libs
             for s in (lib._do_get_relative_paths(lib.get_styles()))
         ]
@@ -3113,19 +3140,39 @@ class Gui:
     def __do_fire_event(
         self, event_name: str, client_id: t.Optional[str] = None, payload: t.Optional[t.Dict[str, t.Any]] = None
     ):
-        this_sid = get_server_request_accessor(self).sid()
-        if this_sid:
-            # avoid messing with the client_id => Set(ws id)
-            get_server_request_accessor(self).set_sid(None)
+        accessor = None
+        try:
+            accessor = get_server_request_accessor(self)
+        except Exception:
+            accessor = None
+
+        this_sid = None
+        if accessor is not None and hasattr(accessor, "sid"):
+            try:
+                this_sid = accessor.sid()
+            except Exception:
+                this_sid = None
+        if this_sid and accessor is not None and hasattr(accessor, "set_sid"):
+            try:
+                accessor.set_sid(None)
+            except Exception:
+                # ignore failures to manipulate sid when no server/request context
+                pass
 
         try:
             with self.get_app_context(), self.__event_manager:
-                if client_id:
-                    setattr(get_server_request_accessor(self).get_request_meta(), Gui.__ARG_CLIENT_ID, client_id)
+                if client_id and accessor is not None and hasattr(accessor, "get_request_meta"):
+                    try:
+                        setattr(accessor.get_request_meta(), Gui.__ARG_CLIENT_ID, client_id)
+                    except Exception:
+                        pass
                 _Hooks()._fire_event(event_name, client_id, payload)
         finally:
-            if this_sid:
-                get_server_request_accessor(self).set_sid(this_sid)
+            if this_sid and accessor is not None and hasattr(accessor, "set_sid"):
+                try:
+                    accessor.set_sid(this_sid)
+                except Exception:
+                    pass
 
     def _add_front_end_variable(self, var_name: str):
         self.__front_end_variables.add(var_name)
@@ -3136,7 +3183,7 @@ class Gui:
     def _patch_variable(
         self, var_name: str, change: t.Optional[dict] = None, remove: t.Optional[dict] = None, value: t.Any = None
     ) -> None:
-        if value and (change or remove):
+        if value is not None and (change or remove):
             # patch local variable
             _patch_value(value, change, remove)
             var_name = self._bind_var(var_name)

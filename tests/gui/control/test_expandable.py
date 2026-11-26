@@ -14,9 +14,9 @@ from taipy.gui import Gui
 
 def test_expandable_md_1(gui: Gui, helpers):
     md_string = """
-<|Expandable section|expandable|not expanded|
+<|expandable.start|title="Expandable section"|not expanded|>
 # This is an expandable section
-|>
+<|expandable.end|>
 """
     expected_list = [
         "<Expandable",
@@ -30,7 +30,7 @@ def test_expandable_md_1(gui: Gui, helpers):
 
 def test_expandable_md_2(gui: Gui, helpers):
     md_string = """
-<|expandable.start|title=Expandable section|not expanded|>
+<|expandable.start|title="Expandable section"|not expanded|>
 # This is an expandable section
 <|expandable.end|>
 """
@@ -45,7 +45,7 @@ def test_expandable_md_2(gui: Gui, helpers):
 
 
 def test_expandable_html(gui: Gui, helpers):
-    html_string = '<taipy:expandable title="Expandable section" expanded="false"><h1>This is an expandable section</h1></taipy:expandable >'  # noqa: E501
+    html_string = '<taipy:expandable title="Expandable section" expanded="{!false}"><h1>This is an expandable section</h1></taipy:expandable>'  # noqa: E501
     expected_list = [
         "<Expandable",
         'expanded="{!false',

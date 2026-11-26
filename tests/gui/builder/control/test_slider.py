@@ -57,7 +57,7 @@ def test_slider_with_dict_labels_builder(gui: Gui, helpers):
     sel = "Item 1"  # noqa: F841
     labels = {"Item 1": "Label Start", "Item 3": "Label End"}  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    with tgb.Page(frame=None) as page:
+    with tgb.Page(frame=inspect.currentframe()) as page:
         tgb.slider(value="{sel}", lov="Item 1;Item 2;Item 3", labels=labels)  # type: ignore[attr-defined]
     expected_list = [
         "<Slider",
@@ -69,7 +69,7 @@ def test_slider_with_dict_labels_builder(gui: Gui, helpers):
 def test_slider_with_boolean_labels_builder(gui: Gui, helpers):
     sel = "Item 1"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    with tgb.Page(frame=None) as page:
+    with tgb.Page(frame=inspect.currentframe()) as page:
         tgb.slider(value="{sel}", lov="Item 1;Item 2;Item 3", labels=True)  # type: ignore[attr-defined]
     expected_list = ["<Slider",
                      'labels="{!true']
@@ -107,7 +107,7 @@ def test_slider_text_anchor_builder(gui: Gui, test_client, helpers):
 def test_slider_text_anchor_default_builder(gui: Gui, test_client, helpers):
     gui._bind_var_val("x", "Item 1")
     with tgb.Page(frame=None) as page:
-        tgb.slider(value="{x}", items="Item 1")  # type: ignore[attr-defined]
+        tgb.slider(value="{x}", lov="Item 1")  # type: ignore[attr-defined]
     expected_list = [
         "<Slider",
         'updateVarName="_TpN_tpec_TpExPr_x_TPMDL_0"',

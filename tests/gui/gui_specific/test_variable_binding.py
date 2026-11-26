@@ -27,7 +27,7 @@ def test_variable_binding(helpers, gui_server):
     gui = Gui(server=gui_server)
     gui.add_page("test", Markdown("<|{x}|> | <|{y}|> | <|{z}|button|on_action=another_function|>"))
     gui.run(run_server=False, single_client=True)
-    client = gui._server.test_client()
+    client = gui_server.test_client()
     response = client.get(f"/{Gui._JSX_URL}/test")
     jsx = helpers.get_response_data(response, gui)["jsx"]
     for expected in ["<Button", 'defaultLabel="button label"', 'label="{!tpec_TpExPr_z_TPMDL_0']:
@@ -46,7 +46,7 @@ def test_properties_binding(helpers, gui_server):
     button_properties = {"label": "A {modifier}button"}  # noqa: F841
     gui.add_page("test", Markdown("<|button|properties=button_properties|>"))
     gui.run(run_server=False)
-    client = gui._server.test_client()
+    client = gui_server.test_client()
     response = client.get(f"/{Gui._JSX_URL}/test")
     jsx = helpers.get_response_data(response, gui)["jsx"]
     for expected in ["<Button", 'defaultLabel="A nice button"']:
@@ -61,7 +61,7 @@ def test_dict_binding(helpers, gui_server):
     d = {"k": "test"}  # noqa: F841
     gui = Gui("<|{d.k}|>", server=gui_server)
     gui.run(run_server=False)
-    client = gui._server.test_client()
+    client = gui_server.test_client()
     response = client.get(f"/{Gui._JSX_URL}/TaiPy_root_page")
     jsx = helpers.get_response_data(response, gui)["jsx"]
     for expected in ["<Field", 'defaultValue="test"']:

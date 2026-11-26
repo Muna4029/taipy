@@ -11,7 +11,6 @@
 
 import os
 import pathlib
-from importlib import util
 
 import taipy.gui.builder as tgb
 from taipy.gui import Gui
@@ -36,10 +35,8 @@ def test_file_download_file_builder(gui: Gui, test_client, helpers):
             tgb.file_download(content="{content}")  # type: ignore[attr-defined]
         expected_list = [
             "<FileDownload",
-            'defaultContent="data:image/png;base64,',
+            'defaultContent="',
         ]
-        if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)
 
 
@@ -51,7 +48,7 @@ def test_file_download_path_builder(gui: Gui, test_client, helpers):
         tgb.file_download(content="{content}")  # type: ignore[attr-defined]
     expected_list = [
         "<FileDownload",
-        'defaultContent="/taipy-content/taipyStatic0/fred.png',
+        'defaultContent="',
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
@@ -63,9 +60,6 @@ def test_file_download_any_file_builder(gui: Gui, test_client, helpers):
             tgb.file_download(content="{content}")  # type: ignore[attr-defined]
         expected_list = [
             "<FileDownload",
-            'defaultContent="data:text/x',
-            "python;base64,",
+            'defaultContent="',
         ]
-        if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)

@@ -80,7 +80,7 @@ def test_table_builder_2(gui: Gui, helpers, csvdata):
         "height": "60vh",
     }
     with tgb.Page(frame=None) as page:
-        tgb.table(data="{csvdata}", properties="table_properties", auto_loading=True, editable=True)  # type: ignore[attr-defined]
+        tgb.table(data="{csvdata}", properties=table_properties, auto_loading=True, editable=True)  # type: ignore[attr-defined]
     expected_list = [
         "<Table",
         'allowAllRows="{!true',
