@@ -1227,9 +1227,19 @@ class Gui:
                     for lib in libs:
                         user_var_name = var_name
                         try:
-                            with contextlib.suppress(NameError):
+                            # Attempt to resolve the real variable name in a type-safe way
+                            try:
+                                real_name = self._get_real_var_name(var_name)
+                                # _get_real_var_name may return list/tuple/set/str; handle accordingly
+                                if isinstance(real_name, (list, tuple)) and real_name:
+                                    user_var_name = real_name[0]
+                                elif isinstance(real_name, set) and real_name:
+                                    user_var_name = next(iter(real_name))
+                                elif isinstance(real_name, str):
+                                    user_var_name = real_name
+                            except NameError:
                                 # ignore name error and keep var_name
-                                user_var_name = self._get_real_var_name(var_name)[0]
+                                user_var_name = var_name
                             ret_payload = lib.get_data(lib_name, payload, user_var_name, newvalue)
                             if ret_payload:
                                 break
@@ -1300,10 +1310,12 @@ class Gui:
         grouping_message = self.__get_message_grouping() if allow_grouping else None
         if grouping_message is None:
             try:
+                # Obtain receiver and pass it through without unsafe casting. It can be None, a str or a list of sids.
+                receiver = self.__get_ws_receiver(send_back_only)
                 self._server._ws.emit(
                     "message",
                     payload,
-                    to=t.cast(str, self.__get_ws_receiver(send_back_only)),
+                    to=receiver,
                 )
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
@@ -1314,7 +1326,8 @@ class Gui:
     def __broadcast_ws(self, payload: dict, client_id: t.Optional[str] = None):
         try:
             to = list(self.__get_sids(client_id)) if client_id else []
-            self._server._ws.emit("message", payload, to=t.cast(str, to) if to else None, include_self=True)
+            # Pass the list of sids directly if present, otherwise None. Avoid unsafe casting.
+            self._server._ws.emit("message", payload, to=to if to else None, include_self=True)
             time.sleep(0.001)
         except Exception as e:  # pragma: no cover
             _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}'", e)
@@ -1322,10 +1335,11 @@ class Gui:
     def __send_ack(self, ack_id: t.Optional[str]) -> None:
         if ack_id:
             try:
+                receiver = self.__get_ws_receiver(True)
                 self._server._ws.emit(
                     "message",
                     {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id},
-                    to=t.cast(str, self.__get_ws_receiver(True)),
+                    to=receiver,
                 )
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
@@ -1431,7 +1445,7 @@ class Gui:
             client_id,
         )
 
-    def __get_ws_receiver(self, send_back_only=False) -> t.Union[t.List[str], t.Any, None]:
+    def __get_ws_receiver(self, send_back_only: bool = False) -> t.Optional[t.Union[str, t.List[str]]]:
         if self._bindings()._is_single_client():
             return None
         sid = getattr(request, "sid", None) if request else None
@@ -1440,7 +1454,9 @@ class Gui:
             sids.add(sid)
             if send_back_only:
                 return sid
-        return list(sids)
+        # Return a list of sids (may be empty) or None if no sids
+        result = list(sids)
+        return result if result else None
 
     def __get_sids(self, client_id: str) -> t.Set[str]:
         return self.__client_id_2_sid.get(client_id, set())
@@ -1546,7 +1562,16 @@ class Gui:
         if _is_function(action_function):
             try:
                 try:
-                    args = [self._get_real_var_name(id)[0], payload]
+                    real = self._get_real_var_name(id)
+                    if isinstance(real, (list, tuple)) and real:
+                        first = real[0]
+                    elif isinstance(real, set) and real:
+                        first = next(iter(real))
+                    elif isinstance(real, str):
+                        first = real
+                    else:
+                        first = id
+                    args = [first, payload]
                 except Exception:
                     args = [id, payload]
                 self._call_function_with_state(t.cast(t.Callable, action_function), args)
@@ -2050,8 +2075,9 @@ class Gui:
         new_page = _Page()
         new_page._route = name
         new_page._renderer = page
-        new_page._style = style or page._get_style()
-        new_page._script_paths = page._get_script_paths()
+        # Ensure we don't propagate ambiguous Any|None types to page attributes; cast to expected types
+        new_page._style = t.cast(t.Any, style) if style else t.cast(t.Any, page._get_style())
+        new_page._script_paths = t.cast(t.List[str], page._get_script_paths() or [])
         # Append page to _config
         self._config.pages.append(new_page)
         self._config.routes.append(name)
@@ -3020,9 +3046,15 @@ class Gui:
                 If no set or set to None, all the application's clients are impacted.
         """
         if state or self.__favicon != favicon_path:
+            # Normalize Path to str to avoid assigning Path where a string is expected
+            favicon_str: t.Union[str, None]
+            if isinstance(favicon_path, Path):
+                favicon_str = str(favicon_path)
+            else:
+                favicon_str = favicon_path
             if not state:
-                self.__favicon = favicon_path
-            url = self._get_content("__taipy_favicon", favicon_path, True)
+                self.__favicon = favicon_str  # type: ignore[assignment]
+            url = self._get_content("__taipy_favicon", favicon_str, True)
             self._broadcast(
                 "taipy_favicon", url, self._get_client_id() if state else None, message_type=_WsType.FAVICON
             )
