@@ -20,7 +20,6 @@ import numpy
 import pandas
 from flask.json.provider import DefaultJSONProvider  # type: ignore[reportMissingImports]
 
-from .._warnings import _warn
 from ..icon import Icon
 from ..utils import _date_to_string, _DoNotUpdate, _MapDict, _TaipyBase
 from ..utils.singleton import _Singleton
@@ -28,12 +27,12 @@ from ..utils.singleton import _Singleton
 
 class JsonAdapter(ABC):
     """NOT DOCUMENTED"""
+
     def register(self):
         _TaipyJsonAdapter().register(self)
 
     @abstractmethod
-    def parse(self, o) -> t.Optional[t.Any]:
-        ...  # pragma: no cover
+    def parse(self, o) -> t.Optional[t.Any]: ...  # pragma: no cover
 
 
 class _DefaultJsonAdapter(JsonAdapter):
@@ -50,6 +49,13 @@ class _DefaultJsonAdapter(JsonAdapter):
             return str(o)
         if isinstance(o, (timedelta, pandas.Timedelta)):
             return str(o)
+        # Handle numpy arrays and pandas series/dataframes for JSON serialization
+        if isinstance(o, numpy.ndarray):
+            return getattr(o, "tolist", lambda: o)()
+        if isinstance(o, pandas.Series):
+            return getattr(o, "tolist", lambda: o)()
+        if isinstance(o, pandas.DataFrame):
+            return o.to_dict(orient="records")
         if isinstance(o, numpy.generic):
             return getattr(o, "tolist", lambda: o)()
         if isinstance(o, _DoNotUpdate):
@@ -65,19 +71,19 @@ class _TaipyJsonAdapter(object, metaclass=_Singleton):
         self._adapters.append(adapter)
 
     def parse(self, o):
-        try:
-            for adapter in reversed(self._adapters):
-                if (output := adapter.parse(o)) is not None:
-                    return output
-            raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable (value: {o}).")
-        except Exception as e:
-            _warn("Exception while resolving JSON", e)
-            return None
+        for adapter in reversed(self._adapters):
+            output = adapter.parse(o)
+            if output is not None:
+                return output
+        raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable (value: {o}).")
 
 
 class _TaipyJsonEncoder(JSONEncoder):
     def default(self, o):
-        return _TaipyJsonAdapter().parse(o)
+        result = _TaipyJsonAdapter().parse(o)
+        if result is None:
+            raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable (value: {o}).")
+        return result
 
 
 class _TaipyJsonProvider(DefaultJSONProvider):
