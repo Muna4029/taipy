@@ -36,29 +36,68 @@ def initialize_as_git_project(project_dir: str) -> str:
 
 
 # Use TOML config file or not
-use_toml_config = "{{ cookiecutter.__use_toml_config }}".upper()
-if use_toml_config == "YES" or use_toml_config == "Y":
-    os.remove(os.path.join(os.getcwd(), "config", "config.py"))
-    os.rename(
-        os.path.join(os.getcwd(), "config", "config_with_toml.py"), os.path.join(os.getcwd(), "config", "config.py")
+
+
+def perform_post_gen_actions(
+    project_dir: str = None,
+    use_toml_config: str = "{{ cookiecutter.__use_toml_config }}",
+    git_choice: str = "{{ cookiecutter.__git }}",
+    main_file: str = "{{cookiecutter.__main_file}}",
+) -> None:
+    """Perform post-generation filesystem and git initialisation safely.
+
+    This function avoids performing any actions at import-time. If template
+    placeholders are still present (e.g. "{{ ... }}"), the function will
+    be a no-op to prevent accidental side effects during import or tests.
+    """
+    if project_dir is None:
+        project_dir = os.getcwd()
+
+    # If cookiecutter placeholders were not rendered, skip any side effects
+    placeholders = ("{{", "}}")
+    if (
+        any(p in use_toml_config for p in placeholders)
+        or any(p in git_choice for p in placeholders)
+        or any(p in main_file for p in placeholders)
+    ):
+        return
+
+    use = use_toml_config.upper().strip()
+    if use in ("YES", "Y"):
+        try:
+            os.remove(os.path.join(project_dir, "config", "config.py"))
+        except FileNotFoundError:
+            pass
+        try:
+            os.rename(
+                os.path.join(project_dir, "config", "config_with_toml.py"),
+                os.path.join(project_dir, "config", "config.py"),
+            )
+        except FileNotFoundError:
+            pass
+    else:
+        for fname in ("config_with_toml.py", "config.toml"):
+            try:
+                os.remove(os.path.join(project_dir, "config", fname))
+            except FileNotFoundError:
+                pass
+
+    git_init_message = ""
+    if git_choice.upper().strip() in ("YES", "Y"):
+        git_init_message = initialize_as_git_project(project_dir)
+    else:
+        try:
+            os.remove(os.path.join(project_dir, ".gitignore"))
+        except FileNotFoundError:
+            pass
+
+    main_file_name = f"{main_file}.py"
+
+    print(
+        f"New Taipy application has been created at {project_dir}"
+        f"{git_init_message}"
+        f"\n\nTo start the application, change directory to the newly created folder:"
+        f"\n\tcd {project_dir}"
+        f"\nand run the application as follows:"
+        f"\n\ttaipy run {main_file_name}"
     )
-else:
-    os.remove(os.path.join(os.getcwd(), "config", "config_with_toml.py"))
-    os.remove(os.path.join(os.getcwd(), "config", "config.toml"))
-
-# Initialize the project as a git repository
-git_init_message = ""
-if "{{ cookiecutter.__git }}".upper() in ["YES", "Y"]:
-    git_init_message = initialize_as_git_project(os.getcwd())
-else:
-    os.remove(os.path.join(os.getcwd(), ".gitignore"))
-
-main_file_name = "{{cookiecutter.__main_file}}.py"
-print(
-    f"New Taipy application has been created at {os.path.join(os.getcwd())}"
-    f"{git_init_message}"
-    f"\n\nTo start the application, change directory to the newly created folder:"
-    f"\n\tcd {os.path.join(os.getcwd())}"
-    f"\nand run the application as follows:"
-    f"\n\ttaipy run {main_file_name}"
-)

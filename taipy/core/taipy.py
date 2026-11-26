@@ -12,6 +12,40 @@
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Literal, Optional, Set, Union, overload
 
+# Provide a minimal shim for pkg_resources when setuptools is not installed in the environment.
+# Some third-party modules import pkg_resources at import time and will raise ModuleNotFoundError
+# if setuptools is not available. The shim uses importlib.metadata when possible to expose
+# get_distribution(). This avoids aborting imports during test startup while still allowing
+# basic distribution version queries.
+try:
+    pass  # type: ignore
+except Exception:
+    import sys
+    import types
+
+    try:
+        from importlib import metadata as _importlib_metadata  # type: ignore
+    except Exception:
+        _importlib_metadata = None
+    _pkg = types.ModuleType("pkg_resources")
+
+    def get_distribution(name):
+        if _importlib_metadata:
+            try:
+                dist = _importlib_metadata.distribution(name)
+
+                class Dist:
+                    def __init__(self, version):
+                        self.version = version
+
+                return Dist(dist.version)
+            except Exception as e:
+                raise ModuleNotFoundError(f"Distribution '{name}' not found") from e
+        raise ModuleNotFoundError("pkg_resources shim requires importlib.metadata support")
+
+    _pkg.get_distribution = get_distribution
+    sys.modules["pkg_resources"] = _pkg
+
 from taipy.common.logger._taipy_logger import _TaipyLogger
 
 from ._entity._entity import _Entity
@@ -1072,7 +1106,7 @@ def get_entities_by_config_id(
         return tasks
     if data_nodes := _DataManagerFactory._build_manager()._get_by_config_id(config_id):
         return data_nodes
-    return scenarios
+    return []
 
 
 def can_duplicate(entity: Union[str, Scenario]) -> ReasonCollection:

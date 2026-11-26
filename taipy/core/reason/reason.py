@@ -206,8 +206,9 @@ class EntityDoesNotExist(Reason, _DataNodeReasonMixin):
         entity_id (str): The entity identifier.
     """
 
-    def __init__(self, entity_id: str):
+    def __init__(self, entity_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"Entity '{entity_id}' does not exist in the repository")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class JobIsNotFinished(Reason, _DataNodeReasonMixin):
@@ -218,8 +219,9 @@ class JobIsNotFinished(Reason, _DataNodeReasonMixin):
         job_id (str): The job identifier.
     """
 
-    def __init__(self, job_id: str):
+    def __init__(self, job_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The job '{job_id}' is not finished yet")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class EntityIsNotAScenario(Reason, _DataNodeReasonMixin):
@@ -230,8 +232,9 @@ class EntityIsNotAScenario(Reason, _DataNodeReasonMixin):
         entity_id (str): The entity identifier.
     """
 
-    def __init__(self, entity_id: str):
+    def __init__(self, entity_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The entity '{entity_id}' is not a scenario")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class ScenarioIsThePrimaryScenario(Reason, _DataNodeReasonMixin):
@@ -243,8 +246,9 @@ class ScenarioIsThePrimaryScenario(Reason, _DataNodeReasonMixin):
         cycle_id (str): The cycle identifier.
     """
 
-    def __init__(self, scenario_id: str, cycle: str):
+    def __init__(self, scenario_id: str, cycle: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The scenario '{scenario_id}' is the primary scenario of cycle '{cycle}'")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class ScenarioDoesNotBelongToACycle(Reason, _DataNodeReasonMixin):
@@ -255,8 +259,9 @@ class ScenarioDoesNotBelongToACycle(Reason, _DataNodeReasonMixin):
         scenario_id (str): The scenario identifier.
     """
 
-    def __init__(self, scenario_id: str):
+    def __init__(self, scenario_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The scenario '{scenario_id}' does not belong to any cycle")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class SubmissionIsNotFinished(Reason, _DataNodeReasonMixin):
@@ -267,8 +272,9 @@ class SubmissionIsNotFinished(Reason, _DataNodeReasonMixin):
         submission_id (str): The submission identifier.
     """
 
-    def __init__(self, submission_id: str):
+    def __init__(self, submission_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The submission '{submission_id}' is not finished yet")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
 
 
 class SubmissionStatusIsUndefined(Reason, _DataNodeReasonMixin):
@@ -279,5 +285,6 @@ class SubmissionStatusIsUndefined(Reason, _DataNodeReasonMixin):
         submission_id (str): The submission identifier.
     """
 
-    def __init__(self, submission_id: str):
+    def __init__(self, submission_id: str, datanode_id: Optional[str] = None):
         Reason.__init__(self, f"The status of submission '{submission_id}' is undefined")
+        _DataNodeReasonMixin.__init__(self, datanode_id)
