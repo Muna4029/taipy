@@ -397,7 +397,7 @@ def test_status_records(job_id):
     assert job_1.execution_duration == 365  # = 13:56:35 - 13:50:30
 
 
-def test_is_deletable():
+def test_is_deletable(job_id):
     with mock.patch("taipy.core.job._job_manager._JobManager._is_deletable") as mock_submit:
         task = Task(config_id="name_1", properties={}, function=_foo, id=TaskId("task_1"))
         job = Job(job_id, task, "submit_id_1", "scenario_entity_id")

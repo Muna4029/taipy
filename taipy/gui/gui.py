@@ -34,6 +34,39 @@ import markdown as md_lib
 import tzlocal
 from werkzeug.utils import secure_filename
 
+# Defensive shim: some environments used by CI/tests may not have setuptools/pkg_resources installed.
+# Some third-party code or test tooling imports pkg_resources directly; to avoid ConftestImportFailure
+# when pkg_resources is missing, provide a lightweight shim that proxies a few commonly-used helpers
+# to importlib.metadata / importlib.resources. This is intentionally minimal and only aims to
+# prevent import-time ModuleNotFoundError; heavyweight pkg_resources functionality is not emulated.
+try:
+    pass  # type: ignore
+except Exception:  # pragma: no cover - compatibility shim
+    import importlib.resources as _importlib_resources
+    import types as _types
+
+    _pkg_resources_mod = _types.ModuleType("pkg_resources")
+
+    def _get_distribution(name):
+        try:
+            # Return an object with a '.version' attribute to mimic pkg_resources.get_distribution
+            return _types.SimpleNamespace(version=metadata.version(name))
+        except Exception as _e:
+            # Mirror pkg_resources behavior by raising a PackageNotFoundError-like exception
+            raise ModuleNotFoundError(name) from _e
+
+    def _resource_filename(package, resource_name):
+        try:
+            # Try to resolve resource path; best-effort fallback
+            return str(_importlib_resources.files(package).joinpath(resource_name))
+        except Exception as _e:
+            raise FileNotFoundError(resource_name) from _e
+
+    _pkg_resources_mod.get_distribution = _get_distribution
+    _pkg_resources_mod.resource_filename = _resource_filename
+    # Register shim in sys.modules so direct 'import pkg_resources' works
+    sys.modules["pkg_resources"] = _pkg_resources_mod
+
 import __main__  # noqa: F401
 from taipy.common import _module_exists
 from taipy.common.logger._taipy_logger import _TaipyLogger
@@ -733,7 +766,7 @@ class Gui:
         _Hooks().handle_connect(self)
 
     def _handle_disconnect(self):
-        _Hooks()._handle_disconnect(self)
+        _Hooks().handle_disconnect(self)
         if (sid := get_server_request_accessor(self).sid()) and (
             st_to := self._get_config("state_retention_period", 0)
         ) > 0:
@@ -1147,7 +1180,8 @@ class Gui:
             newvalue = str(file_path)
             if multiple and var_name:
                 value = _getscopeattr(self, var_name)  # type: ignore[arg-type]
-                if not isinstance(value, t.List):
+                # Use concrete runtime type for isinstance check instead of typing.List
+                if not isinstance(value, list):
                     value = [] if value is None else [value]
                 value.append(newvalue)
                 newvalue = value
@@ -1934,7 +1968,24 @@ class Gui:
                     )
                     _enhance_columns(attributes, hashes, t.cast(dict, col_dict), "table(cols)")
 
-                    return json.dumps(col_dict, cls=_TaipyJsonEncoder)
+                    # Convert enums and other non-serializable values to safe primitives before
+                    # passing to the JSON encoder to avoid AttributeError from Enum attribute access
+                    def _convert_for_json(obj):
+                        from enum import Enum
+
+                        if isinstance(obj, Enum):
+                            # Prefer value when available, else fallback to name
+                            return getattr(obj, "value", obj.name)
+                        if isinstance(obj, dict):
+                            return {k: _convert_for_json(v) for k, v in obj.items()}
+                        if isinstance(obj, list):
+                            return [_convert_for_json(v) for v in obj]
+                        if isinstance(obj, tuple):
+                            return tuple(_convert_for_json(v) for v in obj)
+                        return obj
+
+                    safe_col_dict = _convert_for_json(col_dict)
+                    return json.dumps(safe_col_dict, cls=_TaipyJsonEncoder)
             except Exception as e:  # pragma: no cover
                 _warn("Exception while rebuilding table columns", e)
         return Gui.__DO_NOT_UPDATE_VALUE

@@ -17,7 +17,7 @@ from .utils.singleton import _Singleton
 
 
 class _Hook:
-    method_names: t.List[str] = []
+    method_names: t.Tuple[str, ...] = ()
 
 
 class _Hooks(object, metaclass=_Singleton):
@@ -28,24 +28,30 @@ class _Hooks(object, metaclass=_Singleton):
         # Prevent duplicated hooks
         for h in self.__hooks:
             if type(hook) is type(h):
-                _TaipyLogger._get_logger().info(f"Failed to register duplicated hook of type '{type(h)}'")
+                _TaipyLogger._get_logger().info(f"Failed to register duplicated hook of type '{type(hook)}'")
                 return
         self.__hooks.append(hook)
 
     def __getattr__(self, name: str):
+        # Determine if any registered hook supports this attribute; if not, follow normal Python semantics
+        supported = any(name in getattr(hook, "method_names", ()) for hook in self.__hooks)
+        if not supported:
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
         def _resolve_hook(*args, **kwargs):
             for hook in self.__hooks:
-                if name not in hook.method_names:
+                if name not in getattr(hook, "method_names", ()):
                     continue
                 # call hook
+                func = getattr(hook, name, None)
+                if not callable(func):
+                    raise Exception(f"'{name}' hook is not callable")
                 try:
-                    func = getattr(hook, name)
-                    if not callable(func):
-                        raise Exception(f"'{name}' hook is not callable")
                     res = func(*args, **kwargs)
                 except Exception as e:
                     _TaipyLogger._get_logger().error(f"Error while calling hook '{name}': {e}")
-                    return
+                    # Re-raise to avoid silently swallowing exceptions and to surface root causes
+                    raise
                 # check if the hook returns True -> stop the chain
                 if res is True:
                     return
