@@ -66,6 +66,11 @@ class _TaipyJsonAdapter(object, metaclass=_Singleton):
 
     def parse(self, o):
         try:
+            # If the object is the internal _DoNotUpdate sentinel, accept None as a legitimate
+            # serialization result produced by an adapter (avoid treating it as "no match").
+            if "_DoNotUpdate" in globals() and isinstance(o, _DoNotUpdate):
+                return None
+
             for adapter in reversed(self._adapters):
                 if (output := adapter.parse(o)) is not None:
                     return output

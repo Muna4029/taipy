@@ -23,7 +23,6 @@ from taipy.common.config._serializer._toml_serializer import _TomlSerializer
 from taipy.common.config.checker._checker import _Checker
 from taipy.common.config.checker.issue_collector import IssueCollector
 from taipy.core.config import CoreSection, DataNodeConfig, JobConfig, ScenarioConfig, TaskConfig
-from taipy.rest.config import RestConfig
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -173,6 +172,13 @@ def inject_rest_sections() -> t.Callable:
     """Fixture to inject core sections into the configuration."""
 
     def _inject_rest_sections() -> None:
+        try:
+            from taipy.rest.config import RestConfig
+        except Exception:
+            # If taipy.rest or its optional dependencies are not available during test collection,
+            # skip injecting rest configuration to avoid import-time failures.
+            return
+
         _inject_section(
             RestConfig,
             "rest",

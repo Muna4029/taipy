@@ -1226,7 +1226,15 @@ class Gui:
                     debug_warnings: t.List[warnings.WarningMessage] = []
                     with warnings.catch_warnings(record=True) as warns:
                         warnings.resetwarnings()
-                        json.dumps(newvalue, cls=_TaipyJsonEncoder)
+                        try:
+                            json.dumps(newvalue, cls=_TaipyJsonEncoder)
+                        except TypeError:
+                            # do not send data that is not serializable
+                            if is_debugging():
+                                _TaipyLogger._get_logger().debug(
+                                    f"Skipping variable '{_var}' because it is not JSON serializable: {type(newvalue)}"
+                                )
+                            continue
                         if len(warns):
                             keep_value = True
                             for w in warns:
@@ -1378,9 +1386,15 @@ class Gui:
         grouping_message = self.__get_message_grouping() if allow_grouping else None
         if grouping_message is None:
             try:
+                receiver = self.__get_ws_receiver(send_back_only)
+                # Normalize receiver to either a string, a list of strings, or None
+                if isinstance(receiver, (list, set, tuple)):
+                    to_param = list(receiver) if receiver else None
+                else:
+                    to_param = str(receiver) if receiver is not None else None
                 self._server.send_ws_message(
                     data=payload,
-                    to=t.cast(str, self.__get_ws_receiver(send_back_only)),
+                    to=to_param,
                 )
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
@@ -1391,7 +1405,9 @@ class Gui:
     def __broadcast_ws(self, payload: dict, client_id: t.Optional[str] = None):
         try:
             to = list(self.__get_sids(client_id)) if client_id else []
-            self._server.send_ws_message(data=payload, to=t.cast(str, to) if to else None, include_self=True)
+            # Ensure we pass either a list of sids or None (do not use typing.cast which doesn't change runtime type)
+            to_param = to if to else None
+            self._server.send_ws_message(data=payload, to=to_param, include_self=True)
             time.sleep(0.001)
         except Exception as e:  # pragma: no cover
             _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}'", e)
