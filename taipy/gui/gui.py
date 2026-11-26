@@ -1518,7 +1518,10 @@ class Gui:
 
     def __delete_csv(self, state: State, var_name: str, payload: dict):
         try:
-            (Path(tempfile.gettempdir()) / t.cast(str, payload.get("args", [])[-1]).split("/")[-1]).unlink(True)
+            args = list(payload.get("args", []) or [])
+            if args:
+                filename = str(args[-1]).split("/")[-1]
+                (Path(tempfile.gettempdir()) / filename).unlink(True)
         except Exception:
             pass
 
@@ -2056,7 +2059,12 @@ class Gui:
         new_page = _Page()
         new_page._route = name
         new_page._renderer = page
-        new_page._style = style or page._get_style()
+        # Ensure _style is assigned a mapping type expected by Page internals: prefer an explicit dict,
+        # otherwise fallback to the renderer's default style (or empty dict).
+        if isinstance(style, dict):
+            new_page._style = style
+        else:
+            new_page._style = page._get_style() or {}
         new_page._script_paths = page._get_script_paths()
         # Append page to _config
         self._config.pages.append(new_page)
@@ -2602,7 +2610,8 @@ class Gui:
             script_file = script_file.with_name("taipy").with_suffix(".css")
             if script_file.exists():
                 css_file = f"{script_file.stem}.css"
-        self.__css_file = css_file
+        # Ensure __css_file is always a str to satisfy type expectations
+        self.__css_file = css_file or ""
 
     def _set_state(self, state: State):
         if isinstance(state, State):
@@ -3025,10 +3034,11 @@ class Gui:
             state: The state to apply the change to.<br/>
                 If no set or set to None, all the application's clients are impacted.
         """
-        if state or self.__favicon != favicon_path:
+        fp = str(favicon_path)
+        if state or self.__favicon != fp:
             if not state:
-                self.__favicon = favicon_path
-            url = self._get_content("__taipy_favicon", favicon_path, True)
+                self.__favicon = fp
+            url = self._get_content("__taipy_favicon", fp, True)
             self._broadcast(
                 "taipy_favicon", url, self._get_client_id() if state else None, message_type=_WsType.FAVICON
             )
