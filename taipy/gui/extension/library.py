@@ -177,9 +177,15 @@ class Element:
                     while m := Element.__RE_PROP_VAR.search(val):
                         var = attributes.get(m.group(1))
                         hash_value = None if var is None else gui._evaluate_expr(var)
-                        if hash_value:
+                        if hash_value is not None:
                             names = gui._get_real_var_name(hash_value)
-                            hash_value = names[0] if isinstance(names, tuple) else names
+                            # _get_real_var_name can return a tuple or a list (or a single value).
+                            if isinstance(names, (tuple, list)):
+                                h = names[0] if len(names) > 0 else ""
+                            else:
+                                h = names
+                            # Ensure we use a string for concatenation
+                            hash_value = "" if h is None else str(h)
                         else:
                             hash_value = "None"
                         val = val[: m.start()] + hash_value + val[m.end() :]
@@ -226,7 +232,7 @@ class Element:
                 gui=gui,
                 control_type=name,
                 element_name=f"{lib.get_js_module_name()}_{self._get_js_name(name)}",
-                attributes=properties,
+                attributes=attributes,
                 hash_names=hash_names,
                 lib_name=lib.get_name(),
                 default_value=default_value,

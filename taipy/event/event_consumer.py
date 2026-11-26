@@ -1080,9 +1080,9 @@ class GuiEventConsumer(_CoreEventConsumerBase):
             def record_submissions(state: State, event: Event, submittable: Submittable, submission: Submission):
                 print(f"Submission finished at '{event.creation_date}'. Status: '{submission.submission_status}'")
                 if submission.submission_status == SubmissionStatus.COMPLETED:
-                    state.completed.append[submittable.id]
+                    state.completed.append(submittable.id)
                 elif submission.submission_status == SubmissionStatus.FAILED:
-                    state.failed.append[submittable.id]
+                    state.failed.append(submittable.id)
 
             if __name__ == "__main__":
                 gui = Gui()
@@ -1196,7 +1196,7 @@ class GuiEventConsumer(_CoreEventConsumerBase):
         Notifier.unregister(self._registration.registration_id)
 
     @staticmethod
-    def __format_configs_parameter(clazz, parameter) -> List[str]:
+    def __format_configs_parameter(clazz, parameter) -> Optional[List[str]]:
         if isinstance(parameter, str):
             parameter = [parameter]
         if isinstance(parameter, clazz):

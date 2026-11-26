@@ -73,13 +73,13 @@ class State(SimpleNamespace):
     ```
     """
 
-    __gui_attr = "_gui"
-    __attrs = (
+    __gui_attr: str = "_gui"
+    __attrs: t.Tuple[str, ...] = (
         __gui_attr,
         "_user_var_list",
         "_context_list",
     )
-    __methods = (
+    __methods: t.Tuple[str, ...] = (
         "assign",
         "broadcast",
         "get_gui",
@@ -93,11 +93,11 @@ class State(SimpleNamespace):
         "_get_placeholder_attrs",
         "_add_attribute",
     )
-    __placeholder_attrs = (
+    __placeholder_attrs: t.Tuple[str, ...] = (
         "_taipy_p1",
         "_current_context",
     )
-    __excluded_attrs = __attrs + __methods + __placeholder_attrs
+    __excluded_attrs: t.Tuple[str, ...] = __attrs + __methods + __placeholder_attrs
 
     def __init__(self, gui: "Gui", var_list: t.Iterable[str], context_list: t.Iterable[str]) -> None:
         super().__setattr__(State.__attrs[1], list(State.__filter_var_list(var_list, State.__excluded_attrs)))
@@ -160,25 +160,26 @@ class State(SimpleNamespace):
         return self
 
     def _set_context(self, gui: "Gui") -> t.ContextManager[None]:
-        if (pl_ctx := self._get_placeholder(State.__placeholder_attrs[1])) is not None:
+        pl_ctx: t.Optional[str] = self._get_placeholder(State.__placeholder_attrs[1])
+        if pl_ctx is not None:
             self._set_placeholder(State.__placeholder_attrs[1], None)
             if pl_ctx != gui._get_locals_context():
                 return gui._set_locals_context(pl_ctx)
         if len(inspect.stack()) > 1:
-            ctx = _get_module_name_from_frame(t.cast(FrameType, t.cast(FrameType, inspect.stack()[2].frame)))
+            ctx: t.Optional[str] = _get_module_name_from_frame(t.cast(FrameType, inspect.stack()[2].frame))
             current_context = gui._get_locals_context()
             # ignore context if the current one starts with the new one (to resolve for class modules)
-            if ctx != current_context and not current_context.startswith(str(ctx)):
+            if ctx is not None and ctx != current_context and not current_context.startswith(ctx):
                 return gui._set_locals_context(ctx)
         return nullcontext()
 
     def _notebook_context(self, gui: "Gui"):
         return gui.get_flask_app().app_context() if not has_app_context() and _is_in_notebook() else nullcontext()
 
-    def _get_placeholder(self, name: str):
+    def _get_placeholder(self, name: str) -> t.Optional[str]:
         if name in State.__placeholder_attrs:
             try:
-                return super().__getattribute__(name)
+                return t.cast(t.Optional[str], super().__getattribute__(name))
             except AttributeError:
                 return None
         return None
