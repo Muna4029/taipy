@@ -316,6 +316,7 @@ def invoke_callback(
     if isinstance(gui, Gui):
         return gui.invoke_callback(state_id, callback, args, module_context)
     _warn("'invoke_callback()' must be called with a valid Gui instance.")
+    raise RuntimeError("'invoke_callback()' must be called with a valid Gui instance.")
 
 
 def broadcast_callback(
@@ -340,6 +341,7 @@ def broadcast_callback(
     if isinstance(gui, Gui):
         return gui.broadcast_callback(callback, args, module_context)
     _warn("'broadcast_callback()' must be called with a valid Gui instance.")
+    raise RuntimeError("'broadcast_callback()' must be called with a valid Gui instance.")
 
 
 def invoke_state_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:

@@ -191,7 +191,8 @@ class Element:
         else:
             default_attr: t.Optional[ElementProperty] = None
             default_value = None
-            default_name = None
+            # ensure default_name is a concrete str so it won't be Optional when passed to builders
+            default_name: str = ""
             attrs = []
             if self.attributes:
                 for prop_name, property in self.attributes.items():

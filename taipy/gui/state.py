@@ -75,7 +75,7 @@ class State(SimpleNamespace, metaclass=ABCMeta):
     """
 
     def __init__(self) -> None:
-        self._gui: "Gui"
+        self._gui: t.Optional["Gui"] = None
 
     @abstractmethod
     def get_gui(self) -> "Gui":
@@ -171,11 +171,10 @@ class _GuiState(State):
         "_notebook_context",
         "_get_placeholder",
         "_set_placeholder",
-        "_get_gui_attr",
         "_get_placeholder_attrs",
         "_add_attribute",
     )
-    __placeholder_attrs = ("_taipy_p1", "_current_context", "__state_id")
+    __placeholder_attrs = ("_taipy_p1", "_current_context", "_state_id")
     __excluded_attrs = __attrs + __methods + __placeholder_attrs
 
     def __init__(self, gui: "Gui", var_list: t.Iterable[str], context_list: t.Iterable[str]) -> None:
