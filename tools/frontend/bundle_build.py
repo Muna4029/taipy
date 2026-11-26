@@ -40,7 +40,7 @@ def build_gui(root_path: Path):
     print(f"Building taipy-gui frontend bundle in {root_path}.")  # noqa: T201
     already_exists = (root_path / "taipy" / "gui" / "webapp" / "index.html").exists()
     if already_exists:
-        print(f'Found taipy-gui frontend bundle in {root_path  / "taipy" / "gui" / "webapp"}.')  # noqa: T201
+        print(f"Found taipy-gui frontend bundle in {root_path / 'taipy' / 'gui' / 'webapp'}.")  # noqa: T201
     else:
         print(f"Node Env: ${os.environ['NODE_OPTIONS']}")
         subprocess.run(["npm", "ci"], cwd=root_path / "frontend" / "taipy-gui" / "dom", check=True, shell=with_shell)
@@ -52,7 +52,7 @@ def build_taipy(root_path: Path):
     print(f"Building taipy frontend bundle in {root_path}.")  # noqa: T201
     already_exists = (root_path / "taipy" / "gui_core" / "lib" / "taipy-gui-core.js").exists()
     if already_exists:
-        print(f'Found taipy frontend bundle in {root_path / "taipy" / "gui_core" / "lib"}.')  # noqa: T201
+        print(f"Found taipy frontend bundle in {root_path / 'taipy' / 'gui_core' / 'lib'}.")  # noqa: T201
     else:
         # Specify the correct path to taipy-gui in gui/.env file
         env_file_path = root_path / "frontend" / "taipy" / ".env"
