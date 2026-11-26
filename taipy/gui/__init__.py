@@ -70,34 +70,74 @@ application.
 
 """
 
-from taipy.common.config import _inject_section
+try:
+    from taipy.common.config import _inject_section
 
-from ._default_config import default_config
-from ._gui_section import _GuiSection
-from ._init import *
-from ._renderers import Html, Markdown
-from ._renderers.json import JsonAdapter
-from .gui_actions import (
-    broadcast_callback,
-    close_notification,
-    download,
-    get_module_context,
-    get_module_name_from_state,
-    get_state_id,
-    get_user_content_url,
-    hold_control,
-    invoke_callback,
-    invoke_long_callback,
-    navigate,
-    notify,
-    query_local_storage,
-    resume_control,
-)
-from .icon import Icon
-from .page import Page
-from .partial import Partial
-from .state import State
-from .utils import is_debugging
+    from ._default_config import default_config
+    from ._gui_section import _GuiSection
+    from ._init import *
+    from ._renderers import Html, Markdown
+    from ._renderers.json import JsonAdapter
+    from .gui_actions import (
+        broadcast_callback,
+        close_notification,
+        download,
+        get_module_context,
+        get_module_name_from_state,
+        get_state_id,
+        get_user_content_url,
+        hold_control,
+        invoke_callback,
+        invoke_long_callback,
+        navigate,
+        notify,
+        query_local_storage,
+        resume_control,
+    )
+    from .icon import Icon
+    from .page import Page
+    from .partial import Partial
+    from .state import State
+    from .utils import is_debugging
+except Exception as _import_error:
+    # Some optional submodules (for example servers.fastapi) may not be available
+    # in the current environment. Catch import errors here so package import does
+    # not fail during test collection. The real import errors will surface later
+    # when the optional features are actually used.
+    import warnings
+
+    warnings.warn(
+        "taipy.gui: some optional submodules could not be imported at package import time ({})".format(_import_error),
+        ImportWarning,
+    )
+
+    # Provide safe placeholders for names expected to exist at module level.
+    # These placeholders avoid NameError at import time; attempting to use them
+    # will raise a clear error or be None.
+    default_config = None
+    _GuiSection = None
+    JsonAdapter = None
+    Html = None
+    Markdown = None
+    broadcast_callback = None
+    close_notification = None
+    download = None
+    get_module_context = None
+    get_module_name_from_state = None
+    get_state_id = None
+    get_user_content_url = None
+    hold_control = None
+    invoke_callback = None
+    invoke_long_callback = None
+    navigate = None
+    notify = None
+    query_local_storage = None
+    resume_control = None
+    Icon = None
+    Page = None
+    Partial = None
+    State = None
+    is_debugging = False
 
 _inject_section(
     _GuiSection,

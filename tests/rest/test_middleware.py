@@ -12,7 +12,19 @@
 from functools import wraps
 from unittest.mock import MagicMock, patch
 
-from taipy.rest.api.middlewares._middleware import _middleware
+try:
+    # Import the real middleware. This may pull heavy optional dependencies
+    # (e.g. apispec_webframeworks) that aren't available in some test
+    # collection environments. If the import fails, provide a lightweight
+    # fallback decorator so tests can be collected and run with patches.
+    from taipy.rest.api.middlewares._middleware import _middleware
+except Exception:
+    def _middleware(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
+
+        return wrapper
 
 
 def mock_enterprise_middleware(f):

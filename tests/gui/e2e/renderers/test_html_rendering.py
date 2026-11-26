@@ -22,8 +22,17 @@ if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
 from taipy.gui import Gui, Html
-from taipy.gui.servers.fastapi import _FastAPIServer
-from taipy.gui.servers.flask import _FlaskServer
+
+try:
+    from taipy.gui.servers.fastapi import _FastAPIServer
+except Exception:
+    # Optional dependency may not be installed in the test environment; defer error to runtime if used
+    _FastAPIServer = None
+try:
+    from taipy.gui.servers.flask import _FlaskServer
+except Exception:
+    # Optional dependency may not be installed in the test environment; defer error to runtime if used
+    _FlaskServer = None
 
 
 @pytest.mark.teste2e

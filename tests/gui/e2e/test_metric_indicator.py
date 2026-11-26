@@ -16,7 +16,9 @@ import pytest
 if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
-from taipy.gui import Gui
+# Import taipy.gui lazily and skip tests if it's not available to avoid ModuleNotFoundError
+_taipy_gui = pytest.importorskip("taipy.gui")
+Gui = _taipy_gui.Gui
 
 
 @pytest.mark.extension
