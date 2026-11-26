@@ -74,10 +74,11 @@ def get_changed_files(base_branch):
             text=True,
             check=True,
         )
+        # Keep paths as returned by git to match coverage report filenames (do not strip "taipy/")
         changed_files = [
-            file.replace("taipy/", "")
+            file.strip()
             for file in result.stdout.strip().splitlines()
-            if not file.startswith(("tests/", "tools/"))
+            if not file.startswith(("tests/", "tools/", "taipy/tests/", "taipy/tools/"))
         ]
         return changed_files
     except subprocess.CalledProcessError as e:

@@ -53,7 +53,10 @@ class _DefaultJsonAdapter(JsonAdapter):
         if isinstance(o, numpy.generic):
             return getattr(o, "tolist", lambda: o)()
         if isinstance(o, _DoNotUpdate):
-            return None
+            # Propagate the sentinel instance itself so the central parser can
+            # distinguish between "handled and explicitly DoNotUpdate" and
+            # "adapter did not handle this object".
+            return o
 
 
 class _TaipyJsonAdapter(object, metaclass=_Singleton):
@@ -67,12 +70,18 @@ class _TaipyJsonAdapter(object, metaclass=_Singleton):
     def parse(self, o):
         try:
             for adapter in reversed(self._adapters):
-                if (output := adapter.parse(o)) is not None:
+                output = adapter.parse(o)
+                # If an adapter explicitly returns the _DoNotUpdate sentinel,
+                # propagate it so callers can distinguish this case from "not handled".
+                if output is _DoNotUpdate:
+                    return output
+                if output is not None:
                     return output
             raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable (value: {o}).")
         except Exception as e:
+            # Log the error and re-raise to avoid silently masking unexpected failures.
             _warn("Exception while resolving JSON", e)
-            return None
+            raise
 
 
 class _TaipyJsonEncoder(JSONEncoder):

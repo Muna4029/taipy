@@ -3136,15 +3136,51 @@ class Gui:
     def _patch_variable(
         self, var_name: str, change: t.Optional[dict] = None, remove: t.Optional[dict] = None, value: t.Any = None
     ) -> None:
-        if value and (change or remove):
+        # Use explicit None check for value so falsy-but-valid values (e.g. 0, "", False)
+        # are handled correctly. Also sanitize change/remove payloads to remove internal
+        # sentinel values (e.g. __DO_NOT_UPDATE_VALUE) before sending to the front-end
+        # to avoid JSON serialization errors.
+        if value is not None and (change or remove):
             # patch local variable
             _patch_value(value, change, remove)
             var_name = self._bind_var(var_name)
             deps = [dep for dep in self._get_variable_dependencies(var_name) if dep in self.__front_end_variables]
             if deps:
-                # send patch to client
-                self.__send_ws_patch(
-                    deps,
-                    change,
-                    remove,
-                )
+                # sanitize change/remove to remove internal sentinel markers
+                sentinel = self.__DO_NOT_UPDATE_VALUE
+                _REMOVE = object()
+
+                def _sanitize(obj):
+                    # return _REMOVE to indicate removal of this element/key
+                    if obj is sentinel:
+                        return _REMOVE
+                    if isinstance(obj, dict):
+                        out = {}
+                        for k, v in obj.items():
+                            sv = _sanitize(v)
+                            if sv is not _REMOVE:
+                                out[k] = sv
+                        return out if out else _REMOVE
+                    if isinstance(obj, (list, tuple)):
+                        out_list = []
+                        for v in obj:
+                            sv = _sanitize(v)
+                            if sv is not _REMOVE:
+                                out_list.append(sv)
+                        return out_list if out_list else _REMOVE
+                    return obj
+
+                sanitized_change = _sanitize(change) if change is not None else None
+                if sanitized_change is _REMOVE:
+                    sanitized_change = None
+                sanitized_remove = _sanitize(remove) if remove is not None else None
+                if sanitized_remove is _REMOVE:
+                    sanitized_remove = None
+
+                # Only send patch if there's something left after sanitization
+                if sanitized_change or sanitized_remove:
+                    self.__send_ws_patch(
+                        deps,
+                        sanitized_change,
+                        sanitized_remove,
+                    )

@@ -12,7 +12,12 @@
 from apispec import APISpec
 from apispec.exceptions import APISpecError
 from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
+
+try:
+    from apispec_webframeworks.flask import FlaskPlugin
+except ImportError:
+    # apispec_webframeworks.flask requires pkg_resources (setuptools); make the import optional
+    FlaskPlugin = None
 from flask import Blueprint, jsonify, render_template
 
 
