@@ -246,6 +246,9 @@ class Gui:
             path_mapping = {}
         self._path_mapping = path_mapping
         self._flask = flask
+        # Underlying server instance (Flask server or custom server) - initialized to None
+        # Ensures attributes accessed by WebSocket/broadcast paths exist even before server init
+        self._server = None
 
         self._config = _Config()
         self.__content_accessor = None

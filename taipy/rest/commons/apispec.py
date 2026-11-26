@@ -12,7 +12,20 @@
 from apispec import APISpec
 from apispec.exceptions import APISpecError
 from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
+
+try:
+    from apispec_webframeworks.flask import FlaskPlugin
+except Exception:
+
+    class FlaskPlugin:
+        """Fallback no-op FlaskPlugin when apispec_webframeworks is not available.
+        This avoids import-time failures in environments missing optional dependencies.
+        """
+
+        def __init__(self, *args, **kwargs):
+            pass
+
+
 from flask import Blueprint, jsonify, render_template
 
 
